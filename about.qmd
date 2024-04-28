@@ -1,8 +1,9 @@
 ---
-title: "About"
+title: "Minh Dang"
 image: profile.jpg
 about:
-  template: jolla
+  template: trestles
+  image-shape: rectangle
   links:
     - icon: github
       text: Github
@@ -12,6 +13,5 @@ about:
       href: https://www.linkedin.com/in/minh-dang-60406b17b/
 
 ---
-
-I'm Minh, a full-time Engineer and a part-time ultra trail runner. 
-This place is where I share my knowledge and experiences regarding Software Engineering & Ultra Trail Running.
+I'm Minh, a full-time Software Engineer and a part-time ultra trail runner. 
+Here, I love to share my knowledge and experiences spanning Software Engineering and Ultra Trail Running.

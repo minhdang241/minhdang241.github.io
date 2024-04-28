@@ -11,6 +11,7 @@ image: images/partitioning_thumbnail.png
 layout: post
 title: Chapter 6 - Partitioning
 toc: true
+draft: true
 
 ---
 
