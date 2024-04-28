@@ -14,6 +14,9 @@ website:
         href: https://github.com/minhdang241
       - icon: linkedin
         href: https://www.linkedin.com/in/minh-dang-60406b17b/
+  comments:
+    utterances:
+      repo: minhdang241/minhdang241.github.io
 format:
   html:
     theme: cosmo

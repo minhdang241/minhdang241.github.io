@@ -12,6 +12,7 @@ about:
       text: LinkedIn
       href: https://www.linkedin.com/in/minh-dang-60406b17b/
 
+comments: false
 ---
 I'm Minh, a full-time Software Engineer and a part-time ultra trail runner. 
 Here, I love to share my knowledge and experiences spanning Software Engineering and Ultra Trail Running.
