@@ -1,0 +1,1320 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.553">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2021-08-18">
+<meta name="description" content="Extract aspects in the sentences for aspect sentiment analysis uisng dependency parsing and pos tags.">
+
+<title>personal-blog - Extract aspects from sentence using denpendency parsing and POS tags</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">personal-blog</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com"> <i class="bi bi-twitter" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Extract aspects from sentence using denpendency parsing and POS tags</h1>
+                  <div>
+        <div class="description">
+          Extract aspects in the sentences for aspect sentiment analysis uisng dependency parsing and pos tags.
+        </div>
+      </div>
+                          <div class="quarto-categories">
+                <div class="quarto-category">implementation</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">August 18, 2021</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#install-required-modules" id="toc-install-required-modules" class="nav-link active" data-scroll-target="#install-required-modules">Install required modules</a></li>
+  <li><a href="#load-dataset" id="toc-load-dataset" class="nav-link" data-scroll-target="#load-dataset">Load dataset</a></li>
+  <li><a href="#extract-aspects-using-ner-and-pos" id="toc-extract-aspects-using-ner-and-pos" class="nav-link" data-scroll-target="#extract-aspects-using-ner-and-pos">Extract Aspects using NER and POS</a>
+  <ul class="collapse">
+  <li><a href="#rules" id="toc-rules" class="nav-link" data-scroll-target="#rules">Rules</a></li>
+  </ul></li>
+  <li><a href="#discussion" id="toc-discussion" class="nav-link" data-scroll-target="#discussion">Discussion</a></li>
+  <li><a href="#tags" id="toc-tags" class="nav-link" data-scroll-target="#tags">Tags</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<div id="cell-1" class="cell" data-outputid="8543500e-7093-4747-b3e0-8818524c9e77">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> google.colab <span class="im">import</span> drive</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>drive.mount(<span class="st">'/content/drive'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Mounted at /content/drive</code></pre>
+</div>
+</div>
+<section id="install-required-modules" class="level1">
+<h1>Install required modules</h1>
+<div id="cell-3" class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>capture</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>pip install pyvi</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>pip install https:<span class="op">//</span>github.com<span class="op">/</span>trungtv<span class="op">/</span>vi_spacy<span class="op">/</span>raw<span class="op">/</span>master<span class="op">/</span>packages<span class="op">/</span>vi_spacy_model<span class="op">-</span><span class="fl">0.2.1</span><span class="op">/</span>dist<span class="op">/</span>vi_spacy_model<span class="op">-</span><span class="fl">0.2.1</span>.tar.gz</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>pip install spacy<span class="op">==</span><span class="fl">2.1.4</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Note:</strong> In this post, we will use spacy version 2 since in version it changes the way to load model, and I don’t know how to make it work for the <code>vi_spacy_model</code> :).</p>
+<div id="cell-5" class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> spacy</span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> string <span class="im">import</span> punctuation</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-6" class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Not limit the column width of dataframe</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>pd.set_option(<span class="st">"display.max_colwidth"</span>, <span class="va">None</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="load-dataset" class="level1">
+<h1>Load dataset</h1>
+<div id="cell-8" class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">"/content/drive/MyDrive/SLSOPS/dataset/vietnamese/spacy.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-9" class="cell" data-outputid="de44d770-a540-444d-f6a5-e20aa2e27461">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>df.head()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="45">
+<div>
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">db_id</th>
+<th data-quarto-table-cell-role="th">raw</th>
+<th data-quarto-table-cell-role="th">tokenized_spacy</th>
+<th data-quarto-table-cell-role="th">spacy_no_sw</th>
+<th data-quarto-table-cell-role="th">star_rating</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">0</td>
+<td>1</td>
+<td>Shipper giao đúng hẹn, tận tình mang vào đến cửa căn hộ chung cư.</td>
+<td>shipper giao đúng hẹn tận_tình mang vào đến cửa căn_hộ chung_cư</td>
+<td>shipper giao hẹn tận_tình cửa căn_hộ chung_cư</td>
+<td>5</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">1</td>
+<td>1</td>
+<td>Nhân viên lắp đặt thân thiện, làm việc tốt, tuy nhiên hơi làm dơ tường và đồ đạc trong nhà.</td>
+<td>nhân_viên lắp_đặt thân_thiện làm_việc tốt tuy_nhiên hơi làm dơ tường và đồ_đạc trong nhà</td>
+<td>nhân_viên lắp_đặt thân_thiện làm_việc tốt hơi dơ tường đồ_đạc</td>
+<td>5</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">2</td>
+<td>1</td>
+<td>Sản phẩm đẹp, giá cạnh tranh.</td>
+<td>sản_phẩm đẹp giá cạnh_tranh</td>
+<td>sản_phẩm đẹp giá cạnh_tranh</td>
+<td>5</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">3</td>
+<td>1</td>
+<td>Nhưng giá Tiki bán là ko tặng vật tư giống ở ngoài bán.</td>
+<td>nhưng giá tiki bán là không tặng_vật_tư giống ở ngoài bán</td>
+<td>giá tiki tặng_vật_tư</td>
+<td>5</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">4</td>
+<td>1</td>
+<td>Lúc máy mình lắp xong thì giá vật tư là khoảng hơn 1 triệu.</td>
+<td>lúc máy mình lắp xong thì giá vật_tư là khoảng hơn 1 triệu</td>
+<td>máy lắp xong giá vật_tư 1 triệu</td>
+<td>5</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="extract-aspects-using-ner-and-pos" class="level1">
+<h1>Extract Aspects using NER and POS</h1>
+<div id="cell-11" class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> dataclasses <span class="im">import</span> dataclass</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="at">@dataclass</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> AsOp:</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>    aspect: Any <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>    opinion: Any <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>    adv: Any <span class="op">=</span> <span class="va">None</span> </span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>    verb: Any <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>    negative: <span class="bu">bool</span> <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    aspect_compound: Any <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a><span class="at">@dataclass</span></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> Aspect_Opinion:</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>    aspect: <span class="bu">str</span> <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>    opinion: <span class="bu">str</span> <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a>    verb: <span class="bu">str</span> <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    negative: <span class="bu">bool</span> <span class="op">=</span> <span class="va">False</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-12" class="cell" data-outputid="73c0d4e8-8876-47c0-e1e8-7ec5a52aa764">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Test the libary</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> spacy</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>nlp <span class="op">=</span> spacy.load(<span class="st">'vi_spacy_model'</span>)</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>doc <span class="op">=</span> nlp(<span class="st">'Cộng đồng xử lý ngôn ngữ tự nhiên'</span>)</span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> token <span class="kw">in</span> doc:</span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(token.text, token.tag_, token.dep_)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Cộng_đồng N nsubj
+xử_lý V ROOT
+ngôn_ngữ N obj
+tự_nhiên A compound</code></pre>
+</div>
+</div>
+<div id="cell-13" class="cell" data-outputid="d50a52b4-a25c-4e62-9e7a-b8855c1b0ca1">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load the preprocess data</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>data <span class="op">=</span> <span class="bu">list</span>(df[<span class="st">'spacy_no_sw'</span>])</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>data[<span class="dv">0</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="12">
+<pre><code>'shipper giao hẹn tận_tình cửa căn_hộ chung_cư'</code></pre>
+</div>
+</div>
+<div id="cell-14" class="cell" data-outputid="9f27bbf5-53aa-4718-e418-c92b03c6a01b">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> spacy <span class="im">import</span> displacy <span class="co"># module for visualize the denpendency parsing</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>displacy.render(nlp(df[<span class="st">'tokenized_spacy'</span>][<span class="dv">2</span>]), style<span class="op">=</span><span class="st">"dep"</span>, jupyter<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<svg xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" lang="vi" id="8b1745ebcf974b558d33061789e51dac-0" class="displacy" width="750" height="399.5" direction="ltr" style="max-width: none; height: 399.5px; color: #000000; background: #ffffff; font-family: Arial; direction: ltr">
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="309.5">
+    <tspan class="displacy-word" fill="currentColor" x="50">sản_phẩm</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="50">X</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="309.5">
+    <tspan class="displacy-word" fill="currentColor" x="225">đẹp</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="225">X</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="309.5">
+    <tspan class="displacy-word" fill="currentColor" x="400">giá</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="400">X</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="309.5">
+    <tspan class="displacy-word" fill="currentColor" x="575">cạnh_tranh</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="575">X</tspan>
+</text>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-8b1745ebcf974b558d33061789e51dac-0-0" stroke-width="2px" d="M70,264.5 C70,177.0 215.0,177.0 215.0,264.5" fill="none" stroke="currentColor"></path>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textpath href="#arrow-8b1745ebcf974b558d33061789e51dac-0-0" class="displacy-label" startoffset="50%" side="left" fill="currentColor" text-anchor="middle">amod</textpath>
+    </text>
+    <path class="displacy-arrowhead" d="M215.0,266.5 L223.0,254.5 207.0,254.5" fill="currentColor"></path>
+</g>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-8b1745ebcf974b558d33061789e51dac-0-1" stroke-width="2px" d="M70,264.5 C70,89.5 395.0,89.5 395.0,264.5" fill="none" stroke="currentColor"></path>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textpath href="#arrow-8b1745ebcf974b558d33061789e51dac-0-1" class="displacy-label" startoffset="50%" side="left" fill="currentColor" text-anchor="middle">compound</textpath>
+    </text>
+    <path class="displacy-arrowhead" d="M395.0,266.5 L403.0,254.5 387.0,254.5" fill="currentColor"></path>
+</g>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-8b1745ebcf974b558d33061789e51dac-0-2" stroke-width="2px" d="M70,264.5 C70,2.0 575.0,2.0 575.0,264.5" fill="none" stroke="currentColor"></path>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textpath href="#arrow-8b1745ebcf974b558d33061789e51dac-0-2" class="displacy-label" startoffset="50%" side="left" fill="currentColor" text-anchor="middle">xcomp</textpath>
+    </text>
+    <path class="displacy-arrowhead" d="M575.0,266.5 L583.0,254.5 567.0,254.5" fill="currentColor"></path>
+</g>
+</svg>
+</div>
+</div>
+<div id="cell-15" class="cell" data-outputid="b87bd66d-8087-4d52-cee0-d1c8d6b9cd89">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>displacy.render(nlp(sentences[<span class="dv">20</span>]), style<span class="op">=</span><span class="st">"dep"</span>, jupyter<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display">
+<svg xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" lang="vi" id="73398a62cf9346a59f15c322fb9f9806-0" class="displacy" width="2850" height="574.5" direction="ltr" style="max-width: none; height: 574.5px; color: #000000; background: #ffffff; font-family: Arial; direction: ltr">
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="484.5">
+    <tspan class="displacy-word" fill="currentColor" x="50">tiền</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="50">X</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="484.5">
+    <tspan class="displacy-word" fill="currentColor" x="225">nào</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="225">X</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="484.5">
+    <tspan class="displacy-word" fill="currentColor" x="400">của</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="400">X</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="484.5">
+    <tspan class="displacy-word" fill="currentColor" x="575">nấy</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="575">X</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="484.5">
+    <tspan class="displacy-word" fill="currentColor" x="750">nhưng</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="750">X</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="484.5">
+    <tspan class="displacy-word" fill="currentColor" x="925">âm_thanh</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="925">X</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="484.5">
+    <tspan class="displacy-word" fill="currentColor" x="1100">ồn_ào</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="1100">X</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="484.5">
+    <tspan class="displacy-word" fill="currentColor" x="1275">như</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="1275">X</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="484.5">
+    <tspan class="displacy-word" fill="currentColor" x="1450">động_cơ</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="1450">X</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="484.5">
+    <tspan class="displacy-word" fill="currentColor" x="1625">bezen</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="1625">X</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="484.5">
+    <tspan class="displacy-word" fill="currentColor" x="1800">ầm_ầm</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="1800">X</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="484.5">
+    <tspan class="displacy-word" fill="currentColor" x="1975">thế</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="1975">X</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="484.5">
+    <tspan class="displacy-word" fill="currentColor" x="2150">này</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="2150">X</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="484.5">
+    <tspan class="displacy-word" fill="currentColor" x="2325">thì</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="2325">X</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="484.5">
+    <tspan class="displacy-word" fill="currentColor" x="2500">chịu</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="2500">X</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="484.5">
+    <tspan class="displacy-word" fill="currentColor" x="2675">rồi</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="2675">X</tspan>
+</text>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-73398a62cf9346a59f15c322fb9f9806-0-0" stroke-width="2px" d="M70,439.5 C70,89.5 920.0,89.5 920.0,439.5" fill="none" stroke="currentColor"></path>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textpath href="#arrow-73398a62cf9346a59f15c322fb9f9806-0-0" class="displacy-label" startoffset="50%" side="left" fill="currentColor" text-anchor="middle">nsubj</textpath>
+    </text>
+    <path class="displacy-arrowhead" d="M70,441.5 L62,429.5 78,429.5" fill="currentColor"></path>
+</g>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-73398a62cf9346a59f15c322fb9f9806-0-1" stroke-width="2px" d="M70,439.5 C70,352.0 205.0,352.0 205.0,439.5" fill="none" stroke="currentColor"></path>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textpath href="#arrow-73398a62cf9346a59f15c322fb9f9806-0-1" class="displacy-label" startoffset="50%" side="left" fill="currentColor" text-anchor="middle">det</textpath>
+    </text>
+    <path class="displacy-arrowhead" d="M205.0,441.5 L213.0,429.5 197.0,429.5" fill="currentColor"></path>
+</g>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-73398a62cf9346a59f15c322fb9f9806-0-2" stroke-width="2px" d="M420,439.5 C420,352.0 555.0,352.0 555.0,439.5" fill="none" stroke="currentColor"></path>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textpath href="#arrow-73398a62cf9346a59f15c322fb9f9806-0-2" class="displacy-label" startoffset="50%" side="left" fill="currentColor" text-anchor="middle">case</textpath>
+    </text>
+    <path class="displacy-arrowhead" d="M420,441.5 L412,429.5 428,429.5" fill="currentColor"></path>
+</g>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-73398a62cf9346a59f15c322fb9f9806-0-3" stroke-width="2px" d="M70,439.5 C70,177.0 565.0,177.0 565.0,439.5" fill="none" stroke="currentColor"></path>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textpath href="#arrow-73398a62cf9346a59f15c322fb9f9806-0-3" class="displacy-label" startoffset="50%" side="left" fill="currentColor" text-anchor="middle">nmod</textpath>
+    </text>
+    <path class="displacy-arrowhead" d="M565.0,441.5 L573.0,429.5 557.0,429.5" fill="currentColor"></path>
+</g>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-73398a62cf9346a59f15c322fb9f9806-0-4" stroke-width="2px" d="M770,439.5 C770,352.0 905.0,352.0 905.0,439.5" fill="none" stroke="currentColor"></path>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textpath href="#arrow-73398a62cf9346a59f15c322fb9f9806-0-4" class="displacy-label" startoffset="50%" side="left" fill="currentColor" text-anchor="middle">cc</textpath>
+    </text>
+    <path class="displacy-arrowhead" d="M770,441.5 L762,429.5 778,429.5" fill="currentColor"></path>
+</g>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-73398a62cf9346a59f15c322fb9f9806-0-5" stroke-width="2px" d="M945,439.5 C945,352.0 1080.0,352.0 1080.0,439.5" fill="none" stroke="currentColor"></path>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textpath href="#arrow-73398a62cf9346a59f15c322fb9f9806-0-5" class="displacy-label" startoffset="50%" side="left" fill="currentColor" text-anchor="middle">amod</textpath>
+    </text>
+    <path class="displacy-arrowhead" d="M1080.0,441.5 L1088.0,429.5 1072.0,429.5" fill="currentColor"></path>
+</g>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-73398a62cf9346a59f15c322fb9f9806-0-6" stroke-width="2px" d="M1295,439.5 C1295,352.0 1430.0,352.0 1430.0,439.5" fill="none" stroke="currentColor"></path>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textpath href="#arrow-73398a62cf9346a59f15c322fb9f9806-0-6" class="displacy-label" startoffset="50%" side="left" fill="currentColor" text-anchor="middle">cc</textpath>
+    </text>
+    <path class="displacy-arrowhead" d="M1295,441.5 L1287,429.5 1303,429.5" fill="currentColor"></path>
+</g>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-73398a62cf9346a59f15c322fb9f9806-0-7" stroke-width="2px" d="M1470,439.5 C1470,264.5 1785.0,264.5 1785.0,439.5" fill="none" stroke="currentColor"></path>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textpath href="#arrow-73398a62cf9346a59f15c322fb9f9806-0-7" class="displacy-label" startoffset="50%" side="left" fill="currentColor" text-anchor="middle">nsubj</textpath>
+    </text>
+    <path class="displacy-arrowhead" d="M1470,441.5 L1462,429.5 1478,429.5" fill="currentColor"></path>
+</g>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-73398a62cf9346a59f15c322fb9f9806-0-8" stroke-width="2px" d="M1470,439.5 C1470,352.0 1605.0,352.0 1605.0,439.5" fill="none" stroke="currentColor"></path>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textpath href="#arrow-73398a62cf9346a59f15c322fb9f9806-0-8" class="displacy-label" startoffset="50%" side="left" fill="currentColor" text-anchor="middle">compound</textpath>
+    </text>
+    <path class="displacy-arrowhead" d="M1605.0,441.5 L1613.0,429.5 1597.0,429.5" fill="currentColor"></path>
+</g>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-73398a62cf9346a59f15c322fb9f9806-0-9" stroke-width="2px" d="M945,439.5 C945,89.5 1795.0,89.5 1795.0,439.5" fill="none" stroke="currentColor"></path>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textpath href="#arrow-73398a62cf9346a59f15c322fb9f9806-0-9" class="displacy-label" startoffset="50%" side="left" fill="currentColor" text-anchor="middle">ccomp</textpath>
+    </text>
+    <path class="displacy-arrowhead" d="M1795.0,441.5 L1803.0,429.5 1787.0,429.5" fill="currentColor"></path>
+</g>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-73398a62cf9346a59f15c322fb9f9806-0-10" stroke-width="2px" d="M1820,439.5 C1820,352.0 1955.0,352.0 1955.0,439.5" fill="none" stroke="currentColor"></path>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textpath href="#arrow-73398a62cf9346a59f15c322fb9f9806-0-10" class="displacy-label" startoffset="50%" side="left" fill="currentColor" text-anchor="middle">obj</textpath>
+    </text>
+    <path class="displacy-arrowhead" d="M1955.0,441.5 L1963.0,429.5 1947.0,429.5" fill="currentColor"></path>
+</g>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-73398a62cf9346a59f15c322fb9f9806-0-11" stroke-width="2px" d="M1995,439.5 C1995,352.0 2130.0,352.0 2130.0,439.5" fill="none" stroke="currentColor"></path>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textpath href="#arrow-73398a62cf9346a59f15c322fb9f9806-0-11" class="displacy-label" startoffset="50%" side="left" fill="currentColor" text-anchor="middle">det</textpath>
+    </text>
+    <path class="displacy-arrowhead" d="M2130.0,441.5 L2138.0,429.5 2122.0,429.5" fill="currentColor"></path>
+</g>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-73398a62cf9346a59f15c322fb9f9806-0-12" stroke-width="2px" d="M2345,439.5 C2345,352.0 2480.0,352.0 2480.0,439.5" fill="none" stroke="currentColor"></path>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textpath href="#arrow-73398a62cf9346a59f15c322fb9f9806-0-12" class="displacy-label" startoffset="50%" side="left" fill="currentColor" text-anchor="middle">cc</textpath>
+    </text>
+    <path class="displacy-arrowhead" d="M2345,441.5 L2337,429.5 2353,429.5" fill="currentColor"></path>
+</g>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-73398a62cf9346a59f15c322fb9f9806-0-13" stroke-width="2px" d="M945,439.5 C945,2.0 2500.0,2.0 2500.0,439.5" fill="none" stroke="currentColor"></path>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textpath href="#arrow-73398a62cf9346a59f15c322fb9f9806-0-13" class="displacy-label" startoffset="50%" side="left" fill="currentColor" text-anchor="middle">conj</textpath>
+    </text>
+    <path class="displacy-arrowhead" d="M2500.0,441.5 L2508.0,429.5 2492.0,429.5" fill="currentColor"></path>
+</g>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-73398a62cf9346a59f15c322fb9f9806-0-14" stroke-width="2px" d="M2520,439.5 C2520,352.0 2655.0,352.0 2655.0,439.5" fill="none" stroke="currentColor"></path>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textpath href="#arrow-73398a62cf9346a59f15c322fb9f9806-0-14" class="displacy-label" startoffset="50%" side="left" fill="currentColor" text-anchor="middle">advmod</textpath>
+    </text>
+    <path class="displacy-arrowhead" d="M2655.0,441.5 L2663.0,429.5 2647.0,429.5" fill="currentColor"></path>
+</g>
+</svg>
+</div>
+</div>
+<section id="rules" class="level2">
+<h2 class="anchored" data-anchor-id="rules">Rules</h2>
+<p>We check 2 cases: 1. The token POS is <code>N</code> (Noun) and the Dependency tag is not <code>nsubj</code>. 1. The token POS is <code>N</code> (Noun) and the Dependency tag is <code>nsubj</code>.</p>
+<p><strong>Note:</strong> I come up with these rules by trying with many samples =)) No magic behind it.</p>
+<div id="cell-17" class="cell" data-outputid="d7f60ca6-f0d2-4583-c3cf-96efe1e977db">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>aspects <span class="op">=</span> []</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>doc <span class="op">=</span> nlp(sentences[<span class="dv">25</span>])</span>
+<span id="cb15-3"><a href="#cb15-3" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(doc)</span>
+<span id="cb15-4"><a href="#cb15-4" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i, token <span class="kw">in</span> <span class="bu">enumerate</span>(doc):</span>
+<span id="cb15-5"><a href="#cb15-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Case 1: </span></span>
+<span id="cb15-6"><a href="#cb15-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> token.tag_ <span class="op">==</span> <span class="st">"N"</span> <span class="kw">and</span> token.dep_ <span class="op">!=</span> <span class="st">"nsubj"</span>:</span>
+<span id="cb15-7"><a href="#cb15-7" aria-hidden="true" tabindex="-1"></a>        aspect <span class="op">=</span> token.text</span>
+<span id="cb15-8"><a href="#cb15-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> child <span class="kw">in</span> token.children:</span>
+<span id="cb15-9"><a href="#cb15-9" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> child.dep_ <span class="op">==</span> <span class="st">"compound"</span>:</span>
+<span id="cb15-10"><a href="#cb15-10" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> child <span class="kw">in</span> token.lefts:</span>
+<span id="cb15-11"><a href="#cb15-11" aria-hidden="true" tabindex="-1"></a>                    aspect <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>child<span class="sc">.</span>text<span class="sc">}</span><span class="ss"> </span><span class="sc">{</span>aspect<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb15-12"><a href="#cb15-12" aria-hidden="true" tabindex="-1"></a>                <span class="cf">elif</span> child <span class="kw">in</span> token.rights:</span>
+<span id="cb15-13"><a href="#cb15-13" aria-hidden="true" tabindex="-1"></a>                    aspect <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>aspect<span class="sc">}</span><span class="ss"> </span><span class="sc">{</span>child<span class="sc">.</span>text<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb15-14"><a href="#cb15-14" aria-hidden="true" tabindex="-1"></a>            <span class="cf">elif</span> child.dep_ <span class="op">==</span> <span class="st">"amod"</span>:</span>
+<span id="cb15-15"><a href="#cb15-15" aria-hidden="true" tabindex="-1"></a>                opinion <span class="op">=</span> child.text</span>
+<span id="cb15-16"><a href="#cb15-16" aria-hidden="true" tabindex="-1"></a>                <span class="cf">for</span> gchild <span class="kw">in</span> child.children:</span>
+<span id="cb15-17"><a href="#cb15-17" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">if</span> gchild.dep_ <span class="op">==</span> <span class="st">"advmod"</span>:</span>
+<span id="cb15-18"><a href="#cb15-18" aria-hidden="true" tabindex="-1"></a>                        <span class="cf">if</span> gchild <span class="kw">in</span> child.lefts:</span>
+<span id="cb15-19"><a href="#cb15-19" aria-hidden="true" tabindex="-1"></a>                            opinion <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>gchild<span class="sc">.</span>text<span class="sc">}</span><span class="ss"> </span><span class="sc">{</span>opinion<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb15-20"><a href="#cb15-20" aria-hidden="true" tabindex="-1"></a>                        <span class="cf">elif</span> gchild <span class="kw">in</span> child.rights:</span>
+<span id="cb15-21"><a href="#cb15-21" aria-hidden="true" tabindex="-1"></a>                            opinion <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>opinion<span class="sc">}</span><span class="ss"> </span><span class="sc">{</span>gchild<span class="sc">.</span>text<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb15-22"><a href="#cb15-22" aria-hidden="true" tabindex="-1"></a>                asp_obj <span class="op">=</span> AsOp(aspect<span class="op">=</span>aspect, opinion<span class="op">=</span>opinion)</span>
+<span id="cb15-23"><a href="#cb15-23" aria-hidden="true" tabindex="-1"></a>                aspects.append(asp_obj)</span>
+<span id="cb15-24"><a href="#cb15-24" aria-hidden="true" tabindex="-1"></a>            <span class="cf">elif</span> child.dep_ <span class="op">==</span> <span class="st">"conj"</span>:</span>
+<span id="cb15-25"><a href="#cb15-25" aria-hidden="true" tabindex="-1"></a>                asp_obj <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb15-26"><a href="#cb15-26" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> child.tag_ <span class="op">==</span> <span class="st">"N"</span>:</span>
+<span id="cb15-27"><a href="#cb15-27" aria-hidden="true" tabindex="-1"></a>                    aspect <span class="op">=</span> child.text</span>
+<span id="cb15-28"><a href="#cb15-28" aria-hidden="true" tabindex="-1"></a>                    opinion <span class="op">=</span> <span class="st">""</span></span>
+<span id="cb15-29"><a href="#cb15-29" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">for</span> gchild <span class="kw">in</span> child.rights:</span>
+<span id="cb15-30"><a href="#cb15-30" aria-hidden="true" tabindex="-1"></a>                        <span class="cf">if</span> gchild.dep_ <span class="op">==</span> <span class="st">"xcomp"</span> <span class="kw">and</span> gchild.tag_ <span class="op">==</span> <span class="st">"A"</span>:</span>
+<span id="cb15-31"><a href="#cb15-31" aria-hidden="true" tabindex="-1"></a>                            opinion <span class="op">=</span> gchild.text</span>
+<span id="cb15-32"><a href="#cb15-32" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">if</span> opinion:</span>
+<span id="cb15-33"><a href="#cb15-33" aria-hidden="true" tabindex="-1"></a>                        asp_obj <span class="op">=</span> AsOp(aspect<span class="op">=</span>aspect, opinion<span class="op">=</span>opinion)</span>
+<span id="cb15-34"><a href="#cb15-34" aria-hidden="true" tabindex="-1"></a>                <span class="cf">elif</span> child.tag_ <span class="op">==</span> <span class="st">"A"</span>:</span>
+<span id="cb15-35"><a href="#cb15-35" aria-hidden="true" tabindex="-1"></a>                    asp_obj <span class="op">=</span> AsOp(aspect<span class="op">=</span>aspect, opinion<span class="op">=</span>child.text)</span>
+<span id="cb15-36"><a href="#cb15-36" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> asp_obj: </span>
+<span id="cb15-37"><a href="#cb15-37" aria-hidden="true" tabindex="-1"></a>                    aspects.append(asp_obj)</span>
+<span id="cb15-38"><a href="#cb15-38" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb15-39"><a href="#cb15-39" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Case 2:</span></span>
+<span id="cb15-40"><a href="#cb15-40" aria-hidden="true" tabindex="-1"></a>    <span class="cf">elif</span> token.tag_ <span class="op">==</span> <span class="st">"N"</span> <span class="kw">and</span> token.dep_ <span class="op">==</span> <span class="st">"nsubj"</span>:</span>
+<span id="cb15-41"><a href="#cb15-41" aria-hidden="true" tabindex="-1"></a>        opinion <span class="op">=</span> <span class="st">""</span></span>
+<span id="cb15-42"><a href="#cb15-42" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> token.head.tag_ <span class="op">==</span> <span class="st">"A"</span>:</span>
+<span id="cb15-43"><a href="#cb15-43" aria-hidden="true" tabindex="-1"></a>            opinion <span class="op">=</span> token.head.text</span>
+<span id="cb15-44"><a href="#cb15-44" aria-hidden="true" tabindex="-1"></a>            </span>
+<span id="cb15-45"><a href="#cb15-45" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> child <span class="kw">in</span> token.head.children:</span>
+<span id="cb15-46"><a href="#cb15-46" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> child.text <span class="op">==</span> token.text:</span>
+<span id="cb15-47"><a href="#cb15-47" aria-hidden="true" tabindex="-1"></a>                <span class="cf">continue</span></span>
+<span id="cb15-48"><a href="#cb15-48" aria-hidden="true" tabindex="-1"></a>            <span class="cf">elif</span> child.tag_ <span class="op">==</span> <span class="st">"A"</span> <span class="kw">or</span> child.tag_ <span class="op">==</span> <span class="st">"R"</span>:</span>
+<span id="cb15-49"><a href="#cb15-49" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> opinion:</span>
+<span id="cb15-50"><a href="#cb15-50" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">if</span> child <span class="kw">in</span> token.head.lefts: </span>
+<span id="cb15-51"><a href="#cb15-51" aria-hidden="true" tabindex="-1"></a>                        opinion <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>child<span class="sc">.</span>text<span class="sc">}</span><span class="ss"> </span><span class="sc">{</span>opinion<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb15-52"><a href="#cb15-52" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">else</span>:</span>
+<span id="cb15-53"><a href="#cb15-53" aria-hidden="true" tabindex="-1"></a>                        opinion <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>opinion<span class="sc">}</span><span class="ss"> </span><span class="sc">{</span>child<span class="sc">.</span>text<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb15-54"><a href="#cb15-54" aria-hidden="true" tabindex="-1"></a>                <span class="cf">else</span>:</span>
+<span id="cb15-55"><a href="#cb15-55" aria-hidden="true" tabindex="-1"></a>                    opinion <span class="op">=</span> child.text</span>
+<span id="cb15-56"><a href="#cb15-56" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">for</span> gchild <span class="kw">in</span> child.children:</span>
+<span id="cb15-57"><a href="#cb15-57" aria-hidden="true" tabindex="-1"></a>                        <span class="cf">if</span> gchild.dep_ <span class="op">==</span> <span class="st">"advmod"</span>:</span>
+<span id="cb15-58"><a href="#cb15-58" aria-hidden="true" tabindex="-1"></a>                            <span class="cf">if</span> gchild <span class="kw">in</span> child.lefts:</span>
+<span id="cb15-59"><a href="#cb15-59" aria-hidden="true" tabindex="-1"></a>                                opinion <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>gchild<span class="sc">.</span>text<span class="sc">}</span><span class="ss"> </span><span class="sc">{</span>opinion<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb15-60"><a href="#cb15-60" aria-hidden="true" tabindex="-1"></a>                            <span class="cf">elif</span> gchild <span class="kw">in</span> child.rights:</span>
+<span id="cb15-61"><a href="#cb15-61" aria-hidden="true" tabindex="-1"></a>                                opinion <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>opinion<span class="sc">}</span><span class="ss"> </span><span class="sc">{</span>gchild<span class="sc">.</span>text<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb15-62"><a href="#cb15-62" aria-hidden="true" tabindex="-1"></a>                asp_obj <span class="op">=</span> AsOp(aspect<span class="op">=</span>token.text, opinion<span class="op">=</span>opinion)</span>
+<span id="cb15-63"><a href="#cb15-63" aria-hidden="true" tabindex="-1"></a>                aspects.append(asp_obj)</span>
+<span id="cb15-64"><a href="#cb15-64" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(aspects)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>đến chán giờ cứ sử_dụng là bị cúp nguồn điện thì ai dám bật
+[]</code></pre>
+</div>
+</div>
+<div id="cell-18" class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> dataclasses <span class="im">import</span> dataclass</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> typing <span class="im">import</span> Any</span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="at">@dataclass</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> AsOp:</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>    aspect: Any <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a>    opinion: Any <span class="op">=</span> <span class="va">None</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-19" class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> pyvi <span class="im">import</span> ViTokenizer, ViPosTagger</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>sentence <span class="op">=</span> df[<span class="st">'tokenized_spacy'</span>][<span class="dv">6</span>]</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="co"># print(sentence)</span></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>sentences <span class="op">=</span> <span class="bu">list</span>(df[<span class="st">'tokenized_spacy'</span>])[:<span class="dv">100</span>]</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>aspects <span class="op">=</span> []</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>cnt <span class="op">=</span> <span class="dv">0</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> sentence <span class="kw">in</span> sentences:</span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">try</span>:</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>        doc <span class="op">=</span> nlp(sentence)</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> i, token <span class="kw">in</span> <span class="bu">enumerate</span>(doc):</span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>            <span class="cf">if</span> token.tag_ <span class="op">==</span> <span class="st">"N"</span> <span class="kw">and</span> token.dep_ <span class="op">!=</span> <span class="st">"nsubj"</span>:</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>                aspect <span class="op">=</span> token.text</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>                <span class="cf">for</span> child <span class="kw">in</span> token.children:</span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">if</span> child.dep_ <span class="op">==</span> <span class="st">"compound"</span>:</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>                        <span class="cf">if</span> child <span class="kw">in</span> token.lefts:</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>                            aspect <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>child<span class="sc">.</span>text<span class="sc">}</span><span class="ss"> </span><span class="sc">{</span>aspect<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>                        <span class="cf">elif</span> child <span class="kw">in</span> token.rights:</span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>                            aspect <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>aspect<span class="sc">}</span><span class="ss"> </span><span class="sc">{</span>child<span class="sc">.</span>text<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">elif</span> child.dep_ <span class="op">==</span> <span class="st">"amod"</span>:</span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>                        opinion <span class="op">=</span> child.text</span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>                        <span class="cf">for</span> gchild <span class="kw">in</span> child.children:</span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>                            <span class="cf">if</span> gchild.dep_ <span class="op">==</span> <span class="st">"advmod"</span>:</span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>                                <span class="cf">if</span> gchild <span class="kw">in</span> child.lefts:</span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>                                    opinion <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>gchild<span class="sc">.</span>text<span class="sc">}</span><span class="ss"> </span><span class="sc">{</span>opinion<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>                                <span class="cf">elif</span> gchild <span class="kw">in</span> child.rights:</span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>                                    opinion <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>opinion<span class="sc">}</span><span class="ss"> </span><span class="sc">{</span>gchild<span class="sc">.</span>text<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>                        asp_obj <span class="op">=</span> AsOp(aspect<span class="op">=</span>aspect, opinion<span class="op">=</span>opinion)</span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>                        aspects.append(asp_obj)</span>
+<span id="cb18-29"><a href="#cb18-29" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">elif</span> child.dep_ <span class="op">==</span> <span class="st">"conj"</span>:</span>
+<span id="cb18-30"><a href="#cb18-30" aria-hidden="true" tabindex="-1"></a>                        asp_obj <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb18-31"><a href="#cb18-31" aria-hidden="true" tabindex="-1"></a>                        <span class="cf">if</span> child.tag_ <span class="op">==</span> <span class="st">"N"</span>:</span>
+<span id="cb18-32"><a href="#cb18-32" aria-hidden="true" tabindex="-1"></a>                            aspect <span class="op">=</span> child.text</span>
+<span id="cb18-33"><a href="#cb18-33" aria-hidden="true" tabindex="-1"></a>                            opinion <span class="op">=</span> <span class="st">""</span></span>
+<span id="cb18-34"><a href="#cb18-34" aria-hidden="true" tabindex="-1"></a>                            <span class="cf">for</span> gchild <span class="kw">in</span> child.rights:</span>
+<span id="cb18-35"><a href="#cb18-35" aria-hidden="true" tabindex="-1"></a>                                <span class="cf">if</span> gchild.dep_ <span class="op">==</span> <span class="st">"xcomp"</span> <span class="kw">and</span> gchild.tag_ <span class="op">==</span> <span class="st">"A"</span>:</span>
+<span id="cb18-36"><a href="#cb18-36" aria-hidden="true" tabindex="-1"></a>                                    opinion <span class="op">=</span> gchild.text</span>
+<span id="cb18-37"><a href="#cb18-37" aria-hidden="true" tabindex="-1"></a>                            <span class="cf">if</span> opinion:</span>
+<span id="cb18-38"><a href="#cb18-38" aria-hidden="true" tabindex="-1"></a>                                asp_obj <span class="op">=</span> AsOp(aspect<span class="op">=</span>aspect, opinion<span class="op">=</span>opinion)</span>
+<span id="cb18-39"><a href="#cb18-39" aria-hidden="true" tabindex="-1"></a>                        <span class="cf">elif</span> child.tag_ <span class="op">==</span> <span class="st">"A"</span>:</span>
+<span id="cb18-40"><a href="#cb18-40" aria-hidden="true" tabindex="-1"></a>                            asp_obj <span class="op">=</span> AsOp(aspect<span class="op">=</span>aspect, opinion<span class="op">=</span>child.text)</span>
+<span id="cb18-41"><a href="#cb18-41" aria-hidden="true" tabindex="-1"></a>                        <span class="cf">if</span> asp_obj: </span>
+<span id="cb18-42"><a href="#cb18-42" aria-hidden="true" tabindex="-1"></a>                            aspects.append(asp_obj)</span>
+<span id="cb18-43"><a href="#cb18-43" aria-hidden="true" tabindex="-1"></a>                    </span>
+<span id="cb18-44"><a href="#cb18-44" aria-hidden="true" tabindex="-1"></a>            <span class="cf">elif</span> token.tag_ <span class="op">==</span> <span class="st">"N"</span> <span class="kw">and</span> token.dep_ <span class="op">==</span> <span class="st">"nsubj"</span>:</span>
+<span id="cb18-45"><a href="#cb18-45" aria-hidden="true" tabindex="-1"></a>                opinion <span class="op">=</span> <span class="st">""</span></span>
+<span id="cb18-46"><a href="#cb18-46" aria-hidden="true" tabindex="-1"></a>                <span class="cf">if</span> token.head.tag_ <span class="op">==</span> <span class="st">"A"</span>:</span>
+<span id="cb18-47"><a href="#cb18-47" aria-hidden="true" tabindex="-1"></a>                    opinion <span class="op">=</span> token.head.text</span>
+<span id="cb18-48"><a href="#cb18-48" aria-hidden="true" tabindex="-1"></a>                    </span>
+<span id="cb18-49"><a href="#cb18-49" aria-hidden="true" tabindex="-1"></a>                <span class="cf">for</span> child <span class="kw">in</span> token.head.children:</span>
+<span id="cb18-50"><a href="#cb18-50" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">if</span> child.text <span class="op">==</span> token.text:</span>
+<span id="cb18-51"><a href="#cb18-51" aria-hidden="true" tabindex="-1"></a>                        <span class="cf">continue</span></span>
+<span id="cb18-52"><a href="#cb18-52" aria-hidden="true" tabindex="-1"></a>                    <span class="cf">elif</span> child.tag_ <span class="op">==</span> <span class="st">"A"</span> <span class="kw">or</span> child.tag_ <span class="op">==</span> <span class="st">"R"</span>:</span>
+<span id="cb18-53"><a href="#cb18-53" aria-hidden="true" tabindex="-1"></a>                        <span class="cf">if</span> opinion:</span>
+<span id="cb18-54"><a href="#cb18-54" aria-hidden="true" tabindex="-1"></a>                            <span class="cf">if</span> child <span class="kw">in</span> token.head.lefts: </span>
+<span id="cb18-55"><a href="#cb18-55" aria-hidden="true" tabindex="-1"></a>                                opinion <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>child<span class="sc">.</span>text<span class="sc">}</span><span class="ss"> </span><span class="sc">{</span>opinion<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb18-56"><a href="#cb18-56" aria-hidden="true" tabindex="-1"></a>                            <span class="cf">else</span>:</span>
+<span id="cb18-57"><a href="#cb18-57" aria-hidden="true" tabindex="-1"></a>                                opinion <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>opinion<span class="sc">}</span><span class="ss"> </span><span class="sc">{</span>child<span class="sc">.</span>text<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb18-58"><a href="#cb18-58" aria-hidden="true" tabindex="-1"></a>                        <span class="cf">else</span>:</span>
+<span id="cb18-59"><a href="#cb18-59" aria-hidden="true" tabindex="-1"></a>                            opinion <span class="op">=</span> child.text</span>
+<span id="cb18-60"><a href="#cb18-60" aria-hidden="true" tabindex="-1"></a>                            <span class="cf">for</span> gchild <span class="kw">in</span> child.children:</span>
+<span id="cb18-61"><a href="#cb18-61" aria-hidden="true" tabindex="-1"></a>                                <span class="cf">if</span> gchild.dep_ <span class="op">==</span> <span class="st">"advmod"</span>:</span>
+<span id="cb18-62"><a href="#cb18-62" aria-hidden="true" tabindex="-1"></a>                                    <span class="cf">if</span> gchild <span class="kw">in</span> child.lefts:</span>
+<span id="cb18-63"><a href="#cb18-63" aria-hidden="true" tabindex="-1"></a>                                        opinion <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>gchild<span class="sc">.</span>text<span class="sc">}</span><span class="ss"> </span><span class="sc">{</span>opinion<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb18-64"><a href="#cb18-64" aria-hidden="true" tabindex="-1"></a>                                    <span class="cf">elif</span> gchild <span class="kw">in</span> child.rights:</span>
+<span id="cb18-65"><a href="#cb18-65" aria-hidden="true" tabindex="-1"></a>                                        opinion <span class="op">=</span> <span class="ss">f"</span><span class="sc">{</span>opinion<span class="sc">}</span><span class="ss"> </span><span class="sc">{</span>gchild<span class="sc">.</span>text<span class="sc">}</span><span class="ss">"</span></span>
+<span id="cb18-66"><a href="#cb18-66" aria-hidden="true" tabindex="-1"></a>                        asp_obj <span class="op">=</span> AsOp(aspect<span class="op">=</span>token.text, opinion<span class="op">=</span>opinion)</span>
+<span id="cb18-67"><a href="#cb18-67" aria-hidden="true" tabindex="-1"></a>                        aspects.append(asp_obj)</span>
+<span id="cb18-68"><a href="#cb18-68" aria-hidden="true" tabindex="-1"></a>    <span class="cf">except</span>:</span>
+<span id="cb18-69"><a href="#cb18-69" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(sentence)</span>
+<span id="cb18-70"><a href="#cb18-70" aria-hidden="true" tabindex="-1"></a>        cnt <span class="op">+=</span> <span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-20" class="cell" data-outputid="24f35e91-c454-4331-89fa-61863f32a030">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>aspects</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="93">
+<pre><code>[AsOp(aspect='shipper', opinion='vào'),
+ AsOp(aspect='nhân_viên', opinion='tốt'),
+ AsOp(aspect='sản_phẩm', opinion='đẹp'),
+ AsOp(aspect='giá', opinion='không tặng_vật_tư'),
+ AsOp(aspect='giá', opinion='không tặng_vật_tư giống'),
+ AsOp(aspect='giá', opinion='khoảng'),
+ AsOp(aspect='giá', opinion='hơn khoảng'),
+ AsOp(aspect='giá', opinion='hơn'),
+ AsOp(aspect='tiền', opinion='hơn'),
+ AsOp(aspect='tiền', opinion='không hơn'),
+ AsOp(aspect='hàng', opinion='đúng'),
+ AsOp(aspect='tiki giao_nhận', opinion='tốt'),
+ AsOp(aspect='máy', opinion='tốt'),
+ AsOp(aspect='máy', opinion='rất êm'),
+ AsOp(aspect='hàng', opinion='nhanh'),
+ AsOp(aspect='hàng', opinion='nhanh ổn'),
+ AsOp(aspect='sản_phẩm', opinion='tạm'),
+ AsOp(aspect='hàng', opinion='nhanh'),
+ AsOp(aspect='máy_lạnh', opinion='chưa'),
+ AsOp(aspect='máy_lạnh', opinion='chưa được'),
+ AsOp(aspect='máy', opinion='chỉ'),
+ AsOp(aspect='tiền', opinion='ồn_ào'),
+ AsOp(aspect='âm_thanh', opinion='ồn_ào'),
+ AsOp(aspect='hàng', opinion='mới'),
+ AsOp(aspect='hàng', opinion='cũ'),
+ AsOp(aspect='điện', opinion='cực_kỳ tốt'),
+ AsOp(aspect='điện', opinion='cực_kỳ tốt liên_tục'),
+ AsOp(aspect='sản_phẩm', opinion='cùng'),
+ AsOp(aspect='thực_tế', opinion='gần'),
+ AsOp(aspect='tiếng', opinion='to'),
+ AsOp(aspect='tiếng', opinion='không êm'),
+ AsOp(aspect='pin', opinion='không'),
+ AsOp(aspect='đội_ngũ', opinion='rất'),
+ AsOp(aspect='giá', opinion='thêm'),
+ AsOp(aspect='người', opinion='xanh'),
+ AsOp(aspect='tiki', opinion='rẻ'),
+ AsOp(aspect='máy', opinion='đúng đúng'),
+ AsOp(aspect='máy', opinion='khá to'),
+ AsOp(aspect='máy', opinion='khá to êm'),
+ AsOp(aspect='máy', opinion='khá to êm lại'),
+ AsOp(aspect='khi', opinion='sẽ êm'),
+ AsOp(aspect='máy', opinion='quá ồn'),
+ AsOp(aspect='bạn', opinion='dễ_thương'),
+ AsOp(aspect='bạn', opinion='dễ_thương lắm'),
+ AsOp(aspect='hàng', opinion='nhanh'),
+ AsOp(aspect='độ', opinion='nhiều'),
+ AsOp(aspect='độ', opinion='bền'),
+ AsOp(aspect='ngày', opinion='hợp_lý'),
+ AsOp(aspect='đội', opinion='nhiều'),
+ AsOp(aspect='điều', opinion='hòa'),
+ AsOp(aspect='sản_phẩm', opinion='không'),
+ AsOp(aspect='sản_phẩm', opinion='mới không'),
+ AsOp(aspect='sản_phẩm', opinion='mới không ra'),
+ AsOp(aspect='sản_phẩm', opinion='mới không ra rồi'),
+ AsOp(aspect='điểm', opinion='vô_cùng'),
+ AsOp(aspect='điều', opinion='hòa'),
+ AsOp(aspect='điều', opinion='hòa'),
+ AsOp(aspect='điều', opinion='cũ'),
+ AsOp(aspect='phí', opinion='không'),
+ AsOp(aspect='lần', opinion='cuối_cùng'),
+ AsOp(aspect='chiều', opinion='dài'),
+ AsOp(aspect='cái màng', opinion='lọc'),
+ AsOp(aspect='biên_độ', opinion='nóng'),
+ AsOp(aspect='biên_độ', opinion='lạnh'),
+ AsOp(aspect='biên_độ', opinion='cao'),
+ AsOp(aspect='tổng_chi_phí', opinion='hết'),
+ AsOp(aspect='bao', opinion='gôm'),
+ AsOp(aspect='lòng', opinion='thật buồn'),
+ AsOp(aspect='giá', opinion='rẻ'),
+ AsOp(aspect='giá', opinion='rât'),
+ AsOp(aspect='giá', opinion='hợp_lý'),
+ AsOp(aspect='7tr', opinion='tròn'),
+ AsOp(aspect='cục', opinion='không'),
+ AsOp(aspect='cục', opinion='không có'),
+ AsOp(aspect='máy', opinion='hơi lạnh'),
+ AsOp(aspect='cảm_giác', opinion='rất dễ_chịu'),
+ AsOp(aspect='cục', opinion='lạnh'),
+ AsOp(aspect='cục', opinion='nóng khoảng'),
+ AsOp(aspect='cánh_quạt', opinion='không'),
+ AsOp(aspect='cánh_quạt', opinion='không được'),
+ AsOp(aspect='cục', opinion='nóng'),
+ AsOp(aspect='máy_lạnh', opinion='rất tận_tình'),
+ AsOp(aspect='máy_lạnh', opinion='rất tận_tình kém'),
+ AsOp(aspect='nhân_viên', opinion='rất tận_tình'),
+ AsOp(aspect='nhân_viên', opinion='rất tận_tình kém'),
+ AsOp(aspect='dịch_vụ', opinion='rất kém'),
+ AsOp(aspect='máy_lạnh', opinion='tạm ổn'),
+ AsOp(aspect='máy_lạnh', opinion='tạm ổn êm'),
+ AsOp(aspect='cục', opinion='nóng rất'),
+ AsOp(aspect='dịch_vụ', opinion='khá ổn'),
+ AsOp(aspect='máy', opinion='lạnh'),
+ AsOp(aspect='mát', opinion='lạnh'),
+ AsOp(aspect='sản_phẩm', opinion='mới'),
+ AsOp(aspect='hàng', opinion='nhanh'),
+ AsOp(aspect='máy', opinion='êm'),
+ AsOp(aspect='máy', opinion='êm ít'),
+ AsOp(aspect='máy', opinion='đẹp'),
+ AsOp(aspect='máy', opinion='tốt'),
+ AsOp(aspect='cục', opinion='dễ'),
+ AsOp(aspect='thiết_kế', opinion='trang_nhã'),
+ AsOp(aspect='cục', opinion='mạnh_mẽ'),
+ AsOp(aspect='cục', opinion='cứng_cáp'),
+ AsOp(aspect='tính_năng', opinion='nhiều'),
+ AsOp(aspect='máy', opinion='không'),
+ AsOp(aspect='tốc_độ gió', opinion='phù_hợp'),
+ AsOp(aspect='kích_thước', opinion='khác'),
+ AsOp(aspect='chức_năng', opinion='đầy_đủ')]</code></pre>
+</div>
+</div>
+</section>
+</section>
+<section id="discussion" class="level1">
+<h1>Discussion</h1>
+<p>The quality of this approach depends on the accuracy of the dependecy parsing and POS model.</p>
+</section>
+<section id="tags" class="level1">
+<h1>Tags</h1>
+<pre><code>A - Adjective
+C - Coordinating conjunction
+E - Preposition
+I - Interjection
+L - Determiner
+M - Numeral
+N - Common noun
+Nc - Noun Classifier
+Ny - Noun abbreviation
+Np - Proper noun
+Nu - Unit noun
+P - Pronoun
+R - Adverb
+S - Subordinating conjunction
+T - Auxiliary, modal words
+V - Verb
+X - Unknown
+F - Filtered out (punctuation)</code></pre>
+<p><strong>ccomp</strong>: functions like an object of the verb, or adjective.</p>
+<p><strong>xcomp</strong>: if the subject of the clausal complement is controlled (that is, must be the same as the higher subject or object, with no other possible interpretation)</p>
+<p><strong>predicative</strong>: a part of a sentence containing a verb that makes a statement about the subject of the verb, such as went home in John went home.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
