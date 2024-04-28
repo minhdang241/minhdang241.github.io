@@ -2,8 +2,6 @@
   {
     "listing": "/index.html",
     "items": [
-      "/posts/post-with-code/index.html",
-      "/posts/welcome/index.html",
       "/posts/2023-03-12-DesignMachineLearningSystem.html",
       "/posts/2023-01-29-DDIA-C6-Partitioning.html",
       "/posts/2021-08-30-nlp_12_job_recommendation_for_cs_it.html",
