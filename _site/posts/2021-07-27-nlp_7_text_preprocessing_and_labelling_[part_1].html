@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.553">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="dcterms.date" content="2021-07-27">
+<meta name="description" content="Sample of text preprocessing.">
+
+<title>personal-blog - Text Processing &amp; Labelling [Part1]</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script><script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" integrity="sha512-c3Nl8+7g4LMSTdrm621y7kf9v3SDPnhxLNhcjFJbKECVnmZHTdo+IRO05sNLTH/D3vA6u1X32ehoLC7WFVdheg==" crossorigin="anonymous"></script>
+
+<script type="application/javascript">define('jquery', [],function() {return window.jQuery;})</script>
+
+
+<link rel="stylesheet" href="../styles.css">
+</head>
+
+<body class="nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top quarto-banner">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">personal-blog</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html"> 
+<span class="menu-text">About</span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/"> <i class="bi bi-github" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://twitter.com"> <i class="bi bi-twitter" role="img">
+</i> 
+<span class="menu-text"></span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+          <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<header id="title-block-header" class="quarto-title-block default page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Text Processing &amp; Labelling [Part1]</h1>
+                  <div>
+        <div class="description">
+          Sample of text preprocessing.
+        </div>
+      </div>
+                          <div class="quarto-categories">
+                <div class="quarto-category">implementation</div>
+              </div>
+                  </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">July 27, 2021</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#load-dataset" id="toc-load-dataset" class="nav-link active" data-scroll-target="#load-dataset">Load Dataset</a></li>
+  <li><a href="#preprocess-data" id="toc-preprocess-data" class="nav-link" data-scroll-target="#preprocess-data">Preprocess data</a>
+  <ul class="collapse">
+  <li><a href="#step-1-remove-html-tags" id="toc-step-1-remove-html-tags" class="nav-link" data-scroll-target="#step-1-remove-html-tags">Step 1: Remove HTML Tags</a></li>
+  <li><a href="#step-2-remove-redundant-elements" id="toc-step-2-remove-redundant-elements" class="nav-link" data-scroll-target="#step-2-remove-redundant-elements">Step 2: Remove redundant elements</a></li>
+  <li><a href="#step-3-remove-emoji" id="toc-step-3-remove-emoji" class="nav-link" data-scroll-target="#step-3-remove-emoji">Step 3: Remove emoji</a></li>
+  <li><a href="#step-4-expand-contractions" id="toc-step-4-expand-contractions" class="nav-link" data-scroll-target="#step-4-expand-contractions">Step 4: Expand Contractions</a></li>
+  <li><a href="#step-5-removing-accented-characters" id="toc-step-5-removing-accented-characters" class="nav-link" data-scroll-target="#step-5-removing-accented-characters">Step 5: Removing accented characters</a></li>
+  <li><a href="#step-6-collapse-duplicated-punctuation" id="toc-step-6-collapse-duplicated-punctuation" class="nav-link" data-scroll-target="#step-6-collapse-duplicated-punctuation">Step 6: Collapse duplicated punctuation</a></li>
+  <li><a href="#step-7-filter-languages-english-only" id="toc-step-7-filter-languages-english-only" class="nav-link" data-scroll-target="#step-7-filter-languages-english-only">Step 7: Filter Languages (English only)</a></li>
+  <li><a href="#step-8-lower-case" id="toc-step-8-lower-case" class="nav-link" data-scroll-target="#step-8-lower-case">Step 8: Lower case</a></li>
+  </ul></li>
+  <li><a href="#discussion" id="toc-discussion" class="nav-link" data-scroll-target="#discussion">Discussion</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content quarto-banner-title-block" id="quarto-document-content">
+
+
+
+
+
+<p>The full notebook is availabel <a href="https://github.com/minhdang241/minhdg-blog/blob/master/_notebooks/2021-07-27-NLP_7_Text_Preprocessing_and_Labelling_%5BPart_1%5D.ipynb">here</a>.</p>
+<div id="cell-2" class="cell" data-outputid="8d0ca918-25fc-4657-a481-973eff76a162" data-execution_count="64">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> google.colab <span class="im">import</span> drive</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>drive.mount(<span class="st">'/content/drive'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Drive already mounted at /content/drive; to attempt to forcibly remount, call drive.mount("/content/drive", force_remount=True).</code></pre>
+</div>
+</div>
+<div id="cell-3" class="cell" data-execution_count="65">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="op">%%</span>capture</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>pip install transformers</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>pip install emoji</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>pip install Unidecode</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>pip install contractions</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>pip install word2number</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>python <span class="op">-</span>m spacy download en_core_web_md</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="op">!</span>pip install spacy<span class="op">-</span>langdetect</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="load-dataset" class="level1">
+<h1>Load Dataset</h1>
+<div id="cell-5" class="cell" data-execution_count="195">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>df <span class="op">=</span> pd.read_csv(<span class="st">"/content/drive/MyDrive/Colab Notebooks/Text Classification/Pipeline/datasets.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-6" class="cell" data-execution_count="75">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>df.dropna(inplace<span class="op">=</span><span class="va">True</span>) <span class="co"># drop row(s) containing "nan" value</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>For those who want to reproduce the note book, you can get the data from <a href="https://drive.google.com/file/d/1PZWX6P5bD5_sCIKKPN9dldYy64eW7MGE/view?usp=sharing">here</a>.</p>
+<div id="cell-8" class="cell" data-execution_count="187">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> re</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> string</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> itertools <span class="im">import</span> groupby</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> contractions</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> emoji</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> unidecode</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> bs4 <span class="im">import</span> BeautifulSoup</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> spacy_langdetect <span class="im">import</span> LanguageDetector</span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> word2number <span class="im">import</span> w2n</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-9" class="cell" data-execution_count="250">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> spacy</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>nlp <span class="op">=</span> spacy.load(<span class="st">'en_core_web_md'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-10" class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> pandas <span class="im">as</span> pd</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>pd.set_option(<span class="st">'display.max_colwidth'</span>, <span class="va">None</span>) <span class="co"># Set to display full-width dataframe </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="preprocess-data" class="level1">
+<h1>Preprocess data</h1>
+<section id="step-1-remove-html-tags" class="level2">
+<h2 class="anchored" data-anchor-id="step-1-remove-html-tags">Step 1: Remove HTML Tags</h2>
+<p>HTLM tags does not add any useful information for understanding and analyzing text, so we remove it.</p>
+<div id="cell-13" class="cell" data-execution_count="77">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> remove_html_tags(text):</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    soup <span class="op">=</span> BeautifulSoup(text, <span class="st">"html.parser"</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>    stripped_text <span class="op">=</span> soup.get_text()</span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> stripped_text</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-14" class="cell" data-execution_count="84">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"no_html"</span>] <span class="op">=</span> df[<span class="st">"review"</span>].<span class="bu">apply</span>(remove_html_tags)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-15" class="cell" data-outputid="9cc3ebd8-34e4-493e-f7de-06bb3d8f51e9" data-execution_count="91">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>df[df[<span class="st">"no_html"</span>] <span class="op">!=</span> df[<span class="st">"review"</span>]][<span class="dv">100</span>:<span class="dv">120</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="91">
+<div>
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">comment_id</th>
+<th data-quarto-table-cell-role="th">review</th>
+<th data-quarto-table-cell-role="th">star_rating</th>
+<th data-quarto-table-cell-role="th">no_html</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">8897</td>
+<td>255542</td>
+<td>The colors are super vibrant &amp;amp; unique. I was unable to find colors like this in multiple stores I visited, let alone find both a left &amp;amp; right controller together so this was definitely a win-win.</td>
+<td>5</td>
+<td>The colors are super vibrant &amp; unique. I was unable to find colors like this in multiple stores I visited, let alone find both a left &amp; right controller together so this was definitely a win-win.</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">8955</td>
+<td>255550</td>
+<td>I received my Neon Pink &amp;amp; Neon Green Joy Cons yesterday and I'm amazed at how vibrant and colorful this particular set is! These 2 colors compliment each other perfectly, too! 5/5 Stars! Good packaging, prompt next-day delivery as a Prime Member.</td>
+<td>5</td>
+<td>I received my Neon Pink &amp; Neon Green Joy Cons yesterday and I'm amazed at how vibrant and colorful this particular set is! These 2 colors compliment each other perfectly, too! 5/5 Stars! Good packaging, prompt next-day delivery as a Prime Member.</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">9216</td>
+<td>255962</td>
+<td>Love my Switch &amp;amp; these are fun colors</td>
+<td>5</td>
+<td>Love my Switch &amp; these are fun colors</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">9293</td>
+<td>256306</td>
+<td>&amp;lt;3</td>
+<td>5</td>
+<td>&lt;3</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">9466</td>
+<td>255331</td>
+<td>Perfect pair of new joycons I'm using for a shell &amp;amp; button mod swap.</td>
+<td>5</td>
+<td>Perfect pair of new joycons I'm using for a shell &amp; button mod swap.</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">10566</td>
+<td>257919</td>
+<td>Works &amp;amp; bright colors!</td>
+<td>5</td>
+<td>Works &amp; bright colors!</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">10717</td>
+<td>258185</td>
+<td>Although we do enjoy the new features that Switch have over Wii:* Does not require sensor bar* Portable - able to play on-the-go with build-in console batteryThere are few limitations that we were not aware prior to purchase:* Joy Con battery not removable. (Since rechargeable batteries have limited life, customers will need to purchase new controllers every 1-2 years depending on amount of use)* Joy Con controller size are small for adults including the joystick &amp;amp; buttons* Gel-Con Guards need to be removed when switching to Wheel adopter* Hand Strap need to removed in order to place on charger</td>
+<td>3</td>
+<td>Although we do enjoy the new features that Switch have over Wii:* Does not require sensor bar* Portable - able to play on-the-go with build-in console batteryThere are few limitations that we were not aware prior to purchase:* Joy Con battery not removable. (Since rechargeable batteries have limited life, customers will need to purchase new controllers every 1-2 years depending on amount of use)* Joy Con controller size are small for adults including the joystick &amp; buttons* Gel-Con Guards need to be removed when switching to Wheel adopter* Hand Strap need to removed in order to place on charger</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">10737</td>
+<td>258240</td>
+<td>After a few months of use, without dropping them, nothing smeared on them, and just playing Smash Bros Ultimate, one of the sticks on a Joy-con is starting to wear down. I can't make it respond to sudden movements or flicking. My left stick, in particular, is now drifting. I tried calibrating the controls, and it's fine, but it did nothing to fix the issue.I looked up on means to fix this, and it requires the risk of ruining your controller further by taking it apart to replace the stick with a new one (or at least adjust the current one). Even then, it does not take long for the drifting to come back.It's entirely possible I got unlucky and received a bad pair with my Switch, but it doesn't change the fact that something like this occurred so soon for something so expensive. I really want to enjoy my games on-the-go more often than at home, but it's not going to happen the way the design is flawed.Even the Pro-Controller is having the same issue... so now I'm hesitant to buy any Nintendo-licensed controller... and it doesn't help that the warranty for these controllers are so short. Terrific. Thanks for nothing, Nintendo.&amp;gt;.&amp;gt;</td>
+<td>2</td>
+<td>After a few months of use, without dropping them, nothing smeared on them, and just playing Smash Bros Ultimate, one of the sticks on a Joy-con is starting to wear down. I can't make it respond to sudden movements or flicking. My left stick, in particular, is now drifting. I tried calibrating the controls, and it's fine, but it did nothing to fix the issue.I looked up on means to fix this, and it requires the risk of ruining your controller further by taking it apart to replace the stick with a new one (or at least adjust the current one). Even then, it does not take long for the drifting to come back.It's entirely possible I got unlucky and received a bad pair with my Switch, but it doesn't change the fact that something like this occurred so soon for something so expensive. I really want to enjoy my games on-the-go more often than at home, but it's not going to happen the way the design is flawed.Even the Pro-Controller is having the same issue... so now I'm hesitant to buy any Nintendo-licensed controller... and it doesn't help that the warranty for these controllers are so short. Terrific. Thanks for nothing, Nintendo.&gt;.&gt;</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">10748</td>
+<td>258269</td>
+<td>I for one actually really like Joy Cons, they’re a very unique controller &amp;amp; can work together as one or just use a single joy con as one controller, these purple &amp;amp; neon orange combo is extraordinary! The Purple would sometimes look more like a Hot pink (depending when light hits it) and the neon orange would look more like a summer yellow (same reason; lighting) but they actually are a great combo and if you have other types of color joy cons, you can mixed them up &amp;amp; create your own colorful creation!</td>
+<td>5</td>
+<td>I for one actually really like Joy Cons, they’re a very unique controller &amp; can work together as one or just use a single joy con as one controller, these purple &amp; neon orange combo is extraordinary! The Purple would sometimes look more like a Hot pink (depending when light hits it) and the neon orange would look more like a summer yellow (same reason; lighting) but they actually are a great combo and if you have other types of color joy cons, you can mixed them up &amp; create your own colorful creation!</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">10866</td>
+<td>258366</td>
+<td>I bought this for my daughter for Christmas. She had several people over &amp;amp; they all enjoyed using the new controllers.</td>
+<td>5</td>
+<td>I bought this for my daughter for Christmas. She had several people over &amp; they all enjoyed using the new controllers.</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">10892</td>
+<td>258431</td>
+<td>Colors are vibrant &amp;amp; they work great (as expected lol)! Very fun purchase! We accidentally yeeted one of them across the living room playing a Mario party mini game and it actually still works LOL The stick is a little wonky but overall impressed that it even survived! 10/10 will buy more colors!</td>
+<td>5</td>
+<td>Colors are vibrant &amp; they work great (as expected lol)! Very fun purchase! We accidentally yeeted one of them across the living room playing a Mario party mini game and it actually still works LOL The stick is a little wonky but overall impressed that it even survived! 10/10 will buy more colors!</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">11561</td>
+<td>257944</td>
+<td>They hold a super long charge and the pink &amp;amp; green fill me with nostalgia for the fairly odd parents (my SHOW as a kid).</td>
+<td>5</td>
+<td>They hold a super long charge and the pink &amp; green fill me with nostalgia for the fairly odd parents (my SHOW as a kid).</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">11667</td>
+<td>258509</td>
+<td>They are cute &amp;amp; i love the colors 💜</td>
+<td>5</td>
+<td>They are cute &amp; i love the colors 💜</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">11720</td>
+<td>258580</td>
+<td>My child is soooo happy to have new working controllers! The shipping was quick &amp;amp; on time for his birthday last month.</td>
+<td>5</td>
+<td>My child is soooo happy to have new working controllers! The shipping was quick &amp; on time for his birthday last month.</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">11825</td>
+<td>258629</td>
+<td>Perfect finial addition to me now owning every single pair of joycons (- grey colour as to bland for me) from the UK, Japan &amp;amp; Also the US 😀 very speedy international delivery &amp;amp; arrived perfect so thank you 5*</td>
+<td>0</td>
+<td>Perfect finial addition to me now owning every single pair of joycons (- grey colour as to bland for me) from the UK, Japan &amp; Also the US 😀 very speedy international delivery &amp; arrived perfect so thank you 5*</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">11842</td>
+<td>258645</td>
+<td>Estoy en mi trabajo, y resulta que ya me entregaron el paquete y para colmo tienen el descaro de poner que la persona que recogió el paquete fui yo. TIENEN MI NUMERO DE TELÉFONO, MI DIRECCIÓN &amp;amp; SE ATREVEN A ENTREGARLE EL PRODUCTO A ALGUIEN QUE EN PRIMER LUGAR SE ENCUENTRA FUERA DE LA PROPIEDAD, YA QUE EN LA MISMA HAY REJAS A LO CUAL NADIE PUEDE ENTRAR, QUE ASCO CON EL SERVICIO DE PAQUETERIA. Sigo a la espera de llamada.....</td>
+<td>0</td>
+<td>Estoy en mi trabajo, y resulta que ya me entregaron el paquete y para colmo tienen el descaro de poner que la persona que recogió el paquete fui yo. TIENEN MI NUMERO DE TELÉFONO, MI DIRECCIÓN &amp; SE ATREVEN A ENTREGARLE EL PRODUCTO A ALGUIEN QUE EN PRIMER LUGAR SE ENCUENTRA FUERA DE LA PROPIEDAD, YA QUE EN LA MISMA HAY REJAS A LO CUAL NADIE PUEDE ENTRAR, QUE ASCO CON EL SERVICIO DE PAQUETERIA. Sigo a la espera de llamada.....</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">11879</td>
+<td>253884</td>
+<td>I bought these used for a custom mod, so I only needed the internals. Before taking them apart they seemed to work normally. Post mod they still work normally. It is worth noting however that the shells had scuffs &amp;amp; a few distinct scratches. I recommend just buying new ones if you are using them as is. If you are looking to save a few bucks on a custom controller mod &amp;amp; only need the internal parts then these work. It is worth noting that the sticks did not seem to have any drifting issues either.</td>
+<td>4</td>
+<td>I bought these used for a custom mod, so I only needed the internals. Before taking them apart they seemed to work normally. Post mod they still work normally. It is worth noting however that the shells had scuffs &amp; a few distinct scratches. I recommend just buying new ones if you are using them as is. If you are looking to save a few bucks on a custom controller mod &amp; only need the internal parts then these work. It is worth noting that the sticks did not seem to have any drifting issues either.</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">11961</td>
+<td>254562</td>
+<td>When I bought this product used, all of the buttons worked on both joycons minus the L &amp;amp; R button. I opened them up and saw that the button on the motherboard was not attached but next to where it should have been. Also, the left joycon joystick looks like a toddler chewed on it. I guess that’s what I get for trying to buy used joycons?</td>
+<td>3</td>
+<td>When I bought this product used, all of the buttons worked on both joycons minus the L &amp; R button. I opened them up and saw that the button on the motherboard was not attached but next to where it should have been. Also, the left joycon joystick looks like a toddler chewed on it. I guess that’s what I get for trying to buy used joycons?</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">11968</td>
+<td>254892</td>
+<td>This is our 4th set of Nintendo Switch Joy-Cons. They’re great fun &amp;amp; just as expected, BUT the left one wears out so quickly. And we don’t play video games all the time like some people. For such a high price, Nintendo really should do better.</td>
+<td>3</td>
+<td>This is our 4th set of Nintendo Switch Joy-Cons. They’re great fun &amp; just as expected, BUT the left one wears out so quickly. And we don’t play video games all the time like some people. For such a high price, Nintendo really should do better.</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">12031</td>
+<td>256532</td>
+<td>The left one gets stuck &amp;amp; drifts! Just bought a few months ago this shouldn’t happen!! So disappointed</td>
+<td>1</td>
+<td>The left one gets stuck &amp; drifts! Just bought a few months ago this shouldn’t happen!! So disappointed</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</div>
+<p>One notice from the example above is that the BeautifulSoup function convert <code>&amp;amp;</code> to <code>$</code>. In general, the function tries to convert decode the <strong>HTML Character Entities</strong>.</p>
+</section>
+<section id="step-2-remove-redundant-elements" class="level2">
+<h2 class="anchored" data-anchor-id="step-2-remove-redundant-elements">Step 2: Remove redundant elements</h2>
+<div id="cell-18" class="cell" data-execution_count="115">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Remove and replace by empty space</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> remove_redundant_elements(text):</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    <span class="co"># remove urls</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    text <span class="op">=</span> re.sub(<span class="vs">r"http\S+"</span>, <span class="st">" "</span>, text)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    <span class="co"># remove phone</span></span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    text <span class="op">=</span> re.sub(<span class="vs">r"[\+]?[(]?[0-9]</span><span class="sc">{3}</span><span class="vs">[)]?[-\s\.]?[0-9]</span><span class="sc">{3}</span><span class="vs">[-\s\.]?[0-9]{4,6}"</span>, <span class="st">" "</span>, text)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># remove email</span></span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>    text <span class="op">=</span> re.sub(<span class="vs">r"[\w.+-]+@[\w-]+\.[\w.-]+"</span>, <span class="st">" "</span>, text)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a>    <span class="co"># remove newline</span></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>    table <span class="op">=</span> <span class="bu">str</span>.maketrans(<span class="st">"</span><span class="ch">\n\t\r</span><span class="st">"</span>, <span class="st">"   "</span>)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a>    text <span class="op">=</span> text.translate(table)</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a>    <span class="co"># remove redundant whitespaces</span></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>    text <span class="op">=</span> <span class="st">" "</span>.join(text.split())</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a><span class="co">#     # remove punctuations</span></span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a><span class="co">#     table_ = str.maketrans(string.punctuation, " " * len(string.punctuation))</span></span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a><span class="co">#     comment = " ".join(comment.translate(table_).split())</span></span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> text</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-19" class="cell" data-execution_count="122">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"no_redundant"</span>] <span class="op">=</span> df[<span class="st">"no_html"</span>].<span class="bu">apply</span>(remove_redundant_elements)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-20" class="cell" data-outputid="e6c3864e-3e61-4a4f-b1bf-292f55bbbc4e" data-execution_count="123">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>df[df[<span class="st">"no_redundant"</span>] <span class="op">!=</span> df[<span class="st">"no_html"</span>]][[<span class="st">"no_html"</span>, <span class="st">"no_redundant"</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="123">
+<div>
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">no_html</th>
+<th data-quarto-table-cell-role="th">no_redundant</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1950</td>
+<td>I am overall satisfied with the laptop. It's fast, works great, and didn't have any trouble setting up. I've got to admit, it was hard switching from Windows to IOS, but that was on my part. I was loving it until I really started seeing some changes...It was only, what? Two days in? I unplugged my laptop because I left my room to do assignments in my sister's room, and less than an hour later my laptop went from 100 to 89. I wasn't even using any "THIS NEEDS POWER" apps. I had all the energy saver settings on, and my brightness was low as well. Also, (please read the whole thing because I'm not sure if it's me or the laptop) I had problems with the temperature. It was overheating. I would always hear the fan on at times that were so unnecessary.I'll admit, high-graphic games were played, but after I stopped playing those games, the fan was still moving like someone trying to find a bathroom in Taco Bell. And, it was LOUD, like enough to wake up a 'tarantula' loud (of course not THAT loud, but it sounded like I was using a 2010 desktop Windows 7 Vista CPU). I have a laptop stand, but it has holes. Could that still factor in my circulation issues? I mean, there aren't any ventilation holes on the bottom, right? RIGHT?That's the laptop stand. It says it has heat vents, and in the picture, it shows a Macbook:https://www.amazon.com/Adjustable-Aluminum-Multi-Angle-Heat-Vent-Compatible/dp/B088DB45HG/ref=pd_ybh_a_219?_encoding=UTF8&amp;psc=1&amp;refRID=R8VBZ111SHQCQCPPHJSX</td>
+<td>I am overall satisfied with the laptop. It's fast, works great, and didn't have any trouble setting up. I've got to admit, it was hard switching from Windows to IOS, but that was on my part. I was loving it until I really started seeing some changes...It was only, what? Two days in? I unplugged my laptop because I left my room to do assignments in my sister's room, and less than an hour later my laptop went from 100 to 89. I wasn't even using any "THIS NEEDS POWER" apps. I had all the energy saver settings on, and my brightness was low as well. Also, (please read the whole thing because I'm not sure if it's me or the laptop) I had problems with the temperature. It was overheating. I would always hear the fan on at times that were so unnecessary.I'll admit, high-graphic games were played, but after I stopped playing those games, the fan was still moving like someone trying to find a bathroom in Taco Bell. And, it was LOUD, like enough to wake up a 'tarantula' loud (of course not THAT loud, but it sounded like I was using a 2010 desktop Windows 7 Vista CPU). I have a laptop stand, but it has holes. Could that still factor in my circulation issues? I mean, there aren't any ventilation holes on the bottom, right? RIGHT?That's the laptop stand. It says it has heat vents, and in the picture, it shows a Macbook:</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">4248</td>
+<td>Essa review do Switch Lite está fragmentada em duas partes, software e hardware.Começando pelo aspecto de hardware, é seguro dizer que a Nvidia fez um trabalho muito melhor do que a Nintendo: O SoC Tegra é capaz de entregar jogos antigos de PC (2013 em diante) para o handheld sem screen tearing, sem frame drops, e com uma boa duração de bateria (no máximo 3 horas, dependendo do jogo).Porém, a Nintendo me desapontou: embora os face buttons (X, Y, A B) sejam macios de apertar, a pressa da empresa em lançar logo o Switch Lite afim de aproveitar o hype que o tradicional Switch gerou culminou em sticks com qualidade duvidosa sendo implementados na versão final do produto. Uma vez que o seu stick esteja "funcionando sozinho", isso vai sempre te perseguir até que você resolva o problema: ou envie para um representante da Nintendo no exterior para consertar, o que pode levar até semanas, ou você resolve o problema sozinho - e é aí que você se depara com uma outra limitação imposta pela Nintendo, as tri-wing screws (parafusos de três pontas) que a empresa implementou propositalmente para evitar que seus clientes sejam capazes de fazer a manutenção do Switch Lite. Lamentável.Em termos de software: até a geração passada da Nintendo (WiiU) o senso comum ditava que a audiência da empresa sempre foram os pequenos até os adolescentes. Com o Switch, a Nintendo quer mudar essa idéia e abraçar todos os públicos. Mas os desenvolvedores ainda não engoliram essa, principalmente porque lançaram seus jogos nas plataformas anteriores da Nintendo e se arrependeram amargamente, devido às míseras vendas de seus jogos. É por isso que desenvolvedores como Rockstar, Activision, EA, dentre outros não lançam jogos considerados 'Mature' na plataforma. Depois de quase três anos de mercado, o Switch ainda vive o momento em que essas desenvolvedoras ficam esperando ver quem dá o primeiro passo. Se for feito com sucesso e a lucratividade compensar, as outras seguem. Nesse período de indecisão, a comunidade Switch ainda debate "onde está GTA V para o Switch?", "Cadê o port de Red Dead Redemption?", "por quê ainda não temos Tomb Raider ou Deus EX no Switch?", entre outras reivindicações. Os jogos "first-party" nada mais são do que ports do WiiU cujos preços são absurdamente caros. Para se ter uma idéia, Donkey Kong Tropical Freeze, um jogo do WiiU com mais de cinco anos de existência, é cobrado por 60 Dólares. Tudo bem, o jogo é bonito, porém velho demais e caro demais. E essa tem sido a filosofia da empresa, se for first-party, cobre o máximo. Diferente da competidora Sony, onde até mesmo jogos first-party como God of War é descontado mais da metade em promoções na PS Store, a Nintendo quer sempre cobrar o máximo, descontando seus jogos em 33% de vez em nunca na Nintendo eShop. Esse desconto é seletivo (não valem para todos os jogos da empresa). Além disso, falando na eShop, você sempre compra um jogo 'no escuro': sem uma demo, sem review para você ter uma idéia se o jogo é bom ou não antes de comprar. Então supomos que você compre o jogo mesmo assim. Se arrependeu? Azar o seu, a Nintendo não permite refunds (retorno do software e o seu dinheiro de volta). Um absurdo. E como as leis vigentes brasileiras são mais feitas pra te ferrar do que pra te ajudar, é melhor você procurar um vídeo de um gameplay no Youtube antes de efetuar a sua compra. Você foi avisado.Por fim, eu tenho mais de 340 horas com o meu Switch Lite. Me arrependo de ter comprado o handheld com um preço tão salgado, confesso que deveria ter esperado mais um ano, quem sabe até lá o Switch Lite teria um preço menos abusivo e jogos mais atrativos. Não sou fã de Mario e toda aquela corja "fofinha demais e caro demais" da Nintendo. Admitidamente, se o projeto Smach Z (Kickstarter) tivesse entregado um produto digno da espera, não teria sequer passado perto do Nintendo Switch. E tem mais: se você curte apenas jogos em 2D ou então no estilo dos da Gameloft, teu celular vai ter dar uma experiência melhor do que o Nintendo Switch Lite, supondo que você tenha um controle Bluetooth e um celular com uma configuração respeitável e com mais de 2000mAh de bateria. O único quesito que o Switch Lite ganha é que é apenas uma única configuração de hardware, portanto os desenvolvedores oferecem o suporte aos seus jogos de maneira que rodem de forma suave e compatível, coisa que não se vê muito em jogos Android em 2020.Adicionalmente, se o seu Switch Lite for teu hardware principal para jogos, ele vai ficar bastante judiado.Você vai precisar de um case, uma skin e um grip. Eu recomendo essa solução três-em-um da Skull &amp; Co:https://www.amazon.com/gp/product/B082B56D2H/ref=ppx_yo_dt_b_asin_title_o00_s00?ie=UTF8&amp;psc=1Um screen protector para evitar arranhões na tela:https://www.amazon.com/gp/product/B07QNRB34L/ref=ppx_yo_dt_b_asin_title_o03_s01?ie=UTF8&amp;psc=1E por fim, um cartão de memória. Dependendo se você for um colecionador, a memória interna talvez seja o suficiente. Caso contrário, um cartão de 200GB da SanDisk deve bastar para o seu primeiro ano com o Switch Lite:https://www.amazon.com/gp/product/B073JY5T7T/ref=ppx_yo_dt_b_asin_title_o03_s00?ie=UTF8&amp;psc=1</td>
+<td>Essa review do Switch Lite está fragmentada em duas partes, software e hardware.Começando pelo aspecto de hardware, é seguro dizer que a Nvidia fez um trabalho muito melhor do que a Nintendo: O SoC Tegra é capaz de entregar jogos antigos de PC (2013 em diante) para o handheld sem screen tearing, sem frame drops, e com uma boa duração de bateria (no máximo 3 horas, dependendo do jogo).Porém, a Nintendo me desapontou: embora os face buttons (X, Y, A B) sejam macios de apertar, a pressa da empresa em lançar logo o Switch Lite afim de aproveitar o hype que o tradicional Switch gerou culminou em sticks com qualidade duvidosa sendo implementados na versão final do produto. Uma vez que o seu stick esteja "funcionando sozinho", isso vai sempre te perseguir até que você resolva o problema: ou envie para um representante da Nintendo no exterior para consertar, o que pode levar até semanas, ou você resolve o problema sozinho - e é aí que você se depara com uma outra limitação imposta pela Nintendo, as tri-wing screws (parafusos de três pontas) que a empresa implementou propositalmente para evitar que seus clientes sejam capazes de fazer a manutenção do Switch Lite. Lamentável.Em termos de software: até a geração passada da Nintendo (WiiU) o senso comum ditava que a audiência da empresa sempre foram os pequenos até os adolescentes. Com o Switch, a Nintendo quer mudar essa idéia e abraçar todos os públicos. Mas os desenvolvedores ainda não engoliram essa, principalmente porque lançaram seus jogos nas plataformas anteriores da Nintendo e se arrependeram amargamente, devido às míseras vendas de seus jogos. É por isso que desenvolvedores como Rockstar, Activision, EA, dentre outros não lançam jogos considerados 'Mature' na plataforma. Depois de quase três anos de mercado, o Switch ainda vive o momento em que essas desenvolvedoras ficam esperando ver quem dá o primeiro passo. Se for feito com sucesso e a lucratividade compensar, as outras seguem. Nesse período de indecisão, a comunidade Switch ainda debate "onde está GTA V para o Switch?", "Cadê o port de Red Dead Redemption?", "por quê ainda não temos Tomb Raider ou Deus EX no Switch?", entre outras reivindicações. Os jogos "first-party" nada mais são do que ports do WiiU cujos preços são absurdamente caros. Para se ter uma idéia, Donkey Kong Tropical Freeze, um jogo do WiiU com mais de cinco anos de existência, é cobrado por 60 Dólares. Tudo bem, o jogo é bonito, porém velho demais e caro demais. E essa tem sido a filosofia da empresa, se for first-party, cobre o máximo. Diferente da competidora Sony, onde até mesmo jogos first-party como God of War é descontado mais da metade em promoções na PS Store, a Nintendo quer sempre cobrar o máximo, descontando seus jogos em 33% de vez em nunca na Nintendo eShop. Esse desconto é seletivo (não valem para todos os jogos da empresa). Além disso, falando na eShop, você sempre compra um jogo 'no escuro': sem uma demo, sem review para você ter uma idéia se o jogo é bom ou não antes de comprar. Então supomos que você compre o jogo mesmo assim. Se arrependeu? Azar o seu, a Nintendo não permite refunds (retorno do software e o seu dinheiro de volta). Um absurdo. E como as leis vigentes brasileiras são mais feitas pra te ferrar do que pra te ajudar, é melhor você procurar um vídeo de um gameplay no Youtube antes de efetuar a sua compra. Você foi avisado.Por fim, eu tenho mais de 340 horas com o meu Switch Lite. Me arrependo de ter comprado o handheld com um preço tão salgado, confesso que deveria ter esperado mais um ano, quem sabe até lá o Switch Lite teria um preço menos abusivo e jogos mais atrativos. Não sou fã de Mario e toda aquela corja "fofinha demais e caro demais" da Nintendo. Admitidamente, se o projeto Smach Z (Kickstarter) tivesse entregado um produto digno da espera, não teria sequer passado perto do Nintendo Switch. E tem mais: se você curte apenas jogos em 2D ou então no estilo dos da Gameloft, teu celular vai ter dar uma experiência melhor do que o Nintendo Switch Lite, supondo que você tenha um controle Bluetooth e um celular com uma configuração respeitável e com mais de 2000mAh de bateria. O único quesito que o Switch Lite ganha é que é apenas uma única configuração de hardware, portanto os desenvolvedores oferecem o suporte aos seus jogos de maneira que rodem de forma suave e compatível, coisa que não se vê muito em jogos Android em 2020.Adicionalmente, se o seu Switch Lite for teu hardware principal para jogos, ele vai ficar bastante judiado.Você vai precisar de um case, uma skin e um grip. Eu recomendo essa solução três-em-um da Skull &amp; Co: screen protector para evitar arranhões na tela: por fim, um cartão de memória. Dependendo se você for um colecionador, a memória interna talvez seja o suficiente. Caso contrário, um cartão de 200GB da SanDisk deve bastar para o seu primeiro ano com o Switch Lite:</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">5503</td>
+<td>Button on left as in picture broke too easily please send new one to my niece. Jennifer Canady We spent $200 for this in June.... and we will send old one back (include return shipping label) please call Deborah 512-809-5934 or Sandra niece (512) 944-2592thank you</td>
+<td>Button on left as in picture broke too easily please send new one to my niece. Jennifer Canady We spent $200 for this in June.... and we will send old one back (include return shipping label) please call Deborah or Sandra niece thank you</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">12295</td>
+<td>Please warranty my joy-con Left-side doesn’t charge! New email is huitang2009@hotmail.com. I bought it 2/12 2018!! Only use couple times! Sent me warranty one so I can sent you back the broken one!!!!!</td>
+<td>Please warranty my joy-con Left-side doesn’t charge! New email is I bought it 2/12 2018!! Only use couple times! Sent me warranty one so I can sent you back the broken one!!!!!</td>
+</tr>
+</tbody>
+</table>
+
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="step-3-remove-emoji" class="level2">
+<h2 class="anchored" data-anchor-id="step-3-remove-emoji">Step 3: Remove emoji</h2>
+<div id="cell-22" class="cell" data-execution_count="126">
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> remove_emoji(text):</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> emoji.get_emoji_regexp().sub(<span class="vs">r" "</span>, text)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-23" class="cell" data-execution_count="132">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"no_emoji"</span>] <span class="op">=</span> df[<span class="st">"no_redundant"</span>].<span class="bu">apply</span>(remove_emoji)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-24" class="cell" data-outputid="1db65b23-292c-463d-b3d9-23a16558eb46" data-execution_count="133">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>df[df[<span class="st">"no_redundant"</span>] <span class="op">!=</span> df[<span class="st">"no_emoji"</span>]][[<span class="st">"no_redundant"</span>, <span class="st">"no_emoji"</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="133">
+<div>
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">no_redundant</th>
+<th data-quarto-table-cell-role="th">no_emoji</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">19</td>
+<td>I have been using my renewed computer 👩🏾‍💻 for about 2 weeks now and I am so glad I bought it from “All-out-Apple” the best computer seller on Amazon! I received the 2018 MacBook Air i5 quad core 256gb and the actual specs matched the description! I use it for college for my Zoom classes and the virtual background works!! I upgraded from my 2013 MacBook Air and this one is a lot faster and a much better battery life. It also came with a brand new usb-c original Apple charger for this Mac. This computer is like-new with no scratches at all and I was able to transfer all my old data to this new computer. I would recommend this computer for students and teachers too.</td>
+<td>I have been using my renewed computer for about 2 weeks now and I am so glad I bought it from “All-out-Apple” the best computer seller on Amazon! I received the 2018 MacBook Air i5 quad core 256gb and the actual specs matched the description! I use it for college for my Zoom classes and the virtual background works!! I upgraded from my 2013 MacBook Air and this one is a lot faster and a much better battery life. It also came with a brand new usb-c original Apple charger for this Mac. This computer is like-new with no scratches at all and I was able to transfer all my old data to this new computer. I would recommend this computer for students and teachers too.</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">239</td>
+<td>Great purchase! Worth every penny. And the color is gorgeous 😍</td>
+<td>Great purchase! Worth every penny. And the color is gorgeous</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">363</td>
+<td>I spent a lot of time debating on purchasing brand new or renewed off amazon. I ended up going the cheaper route and went with the amazon renewed one. The product came in a plain brown box, but was wrapped like it was brand new. There are no marks or dents on mine, and it acts like a brand new computer!! I am obsessed with it!!! Best purchase I’ve made all year. Seriously, great bang for your buck! 😁</td>
+<td>I spent a lot of time debating on purchasing brand new or renewed off amazon. I ended up going the cheaper route and went with the amazon renewed one. The product came in a plain brown box, but was wrapped like it was brand new. There are no marks or dents on mine, and it acts like a brand new computer!! I am obsessed with it!!! Best purchase I’ve made all year. Seriously, great bang for your buck!</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">475</td>
+<td>I'm happy with product. Is apple 🍎 there's not much to say. there product are great. I'm a prime member. I received it 2 days later. My daughter needed for school on line</td>
+<td>I'm happy with product. Is apple there's not much to say. there product are great. I'm a prime member. I received it 2 days later. My daughter needed for school on line</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">527</td>
+<td>I’m in love with my new Mac book very easy to use and set up. I Definitely recommend it great purchase that I did 👌😁</td>
+<td>I’m in love with my new Mac book very easy to use and set up. I Definitely recommend it great purchase that I did</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">11874</td>
+<td>Arrived broken, you can see in the one pic how it came, when my husband took it out of the plastic he said this isn’t right. The black part was completely unattached to the red main part. Upon inspection, because my husband can fix anything...it looks like someone just ripped it off the main part of the controller. It’s missing one screw and the other was ripped out with the red con plastic still on it. It’s beyond repair 😒. How did it pass inspection?!</td>
+<td>Arrived broken, you can see in the one pic how it came, when my husband took it out of the plastic he said this isn’t right. The black part was completely unattached to the red main part. Upon inspection, because my husband can fix anything...it looks like someone just ripped it off the main part of the controller. It’s missing one screw and the other was ripped out with the red con plastic still on it. It’s beyond repair . How did it pass inspection?!</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">11894</td>
+<td>Had original gray Joy-Cons when I got my Switch and had the dreaded analog drift. It was time I purchased official Nintendo (pricey) Joy-Cons...and always thought this Neon Purple/Orange was eye-catching and lemme tell you...once you see them in person, they're beautiful.All the buttons feel a notch up more stable and comfortable to the input. Drift is no longer an issue and I was super satisfied with these Joy-Cons. My Switch never looked better. 😉</td>
+<td>Had original gray Joy-Cons when I got my Switch and had the dreaded analog drift. It was time I purchased official Nintendo (pricey) Joy-Cons...and always thought this Neon Purple/Orange was eye-catching and lemme tell you...once you see them in person, they're beautiful.All the buttons feel a notch up more stable and comfortable to the input. Drift is no longer an issue and I was super satisfied with these Joy-Cons. My Switch never looked better.</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">11934</td>
+<td>Only giving it one star because they worked great for about 2 days then the right controller started doing exactly the same thing our left controller did. We bought these to replace our original ones but they’re the same 😒</td>
+<td>Only giving it one star because they worked great for about 2 days then the right controller started doing exactly the same thing our left controller did. We bought these to replace our original ones but they’re the same</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">11942</td>
+<td>I surprised my nephew for 10th birthday andHe loves it!🙂</td>
+<td>I surprised my nephew for 10th birthday andHe loves it!</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">12134</td>
+<td>I love these Joy Cons I purchased for the purpose of replacing my red and blue neon pair because the left joy con's analog stick was broken. My biggest problem/complaint is that the left Joy Con battery dies way too quickly. It's almost been a month since I had these joy cons and I've never had to charge the left one, only the right one. I don't understand it 🤷🤷</td>
+<td>I love these Joy Cons I purchased for the purpose of replacing my red and blue neon pair because the left joy con's analog stick was broken. My biggest problem/complaint is that the left Joy Con battery dies way too quickly. It's almost been a month since I had these joy cons and I've never had to charge the left one, only the right one. I don't understand it</td>
+</tr>
+</tbody>
+</table>
+
+<p>217 rows × 2 columns</p>
+</div>
+</div>
+</div>
+</div>
+<p>All the emojies detected are removed</p>
+</section>
+<section id="step-4-expand-contractions" class="level2">
+<h2 class="anchored" data-anchor-id="step-4-expand-contractions">Step 4: Expand Contractions</h2>
+<div id="cell-27" class="cell" data-execution_count="153">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> expand_contractions(text):</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    <span class="co">"""expand shortened words, e.g. don't to do not"""</span></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>    text <span class="op">=</span> contractions.fix(text)</span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> text</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-28" class="cell" data-execution_count="154">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"expand_contractions"</span>] <span class="op">=</span> df[<span class="st">"no_emoji"</span>].<span class="bu">apply</span>(expand_contractions)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-29" class="cell" data-outputid="00eff7d2-b1e8-45fe-b405-8263ed68adc3" data-execution_count="160">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>df[df[<span class="st">"expand_contractions"</span>] <span class="op">!=</span> df[<span class="st">"no_emoji"</span>]][[<span class="st">"no_emoji"</span>, <span class="st">"expand_contractions"</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="160">
+<div>
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">no_emoji</th>
+<th data-quarto-table-cell-role="th">expand_contractions</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1</td>
+<td>Best computer I’ve ever own!! This computer forces me to be productive. I used to wait around for this spinning wheel to stop, and now I can do everything so quickly that I think I almost miss the waiting part. Ha ha. I don’t have time to get coffee anymore. All my apps run smoothly, including adobe illustrator and Photoshop, and they work perfectly. Almost too perfect. I really love this computer. I hope it last me for many years to come.</td>
+<td>Best computer I have ever own!! This computer forces me to be productive. I used to wait around for this spinning wheel to stop, and now I can do everything so quickly that I think I almost miss the waiting part. Ha ha. I do not have time to get coffee anymore. All my apps run smoothly, including adobe illustrator and Photoshop, and they work perfectly. Almost too perfect. I really love this computer. I hope it last me for many years to come.</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">4</td>
+<td>I left my brand new Macbook pro in my car for an hour and now the screen looks like a Picasso painting. Neither Amazon nor Macintosh will pay for repairs, even though I bought it only two months ago, so I'm out $700 to repair my brand new computer. I would heavily advise against buying one of these, because if 80 degree heat is enough to damage the screen, then they're essentially useless if your air conditioner goes out and you will be left with a repair bill that is half the value of the computer.</td>
+<td>I left my brand new Macbook pro in my car for an hour and now the screen looks like a Picasso painting. Neither Amazon nor Macintosh will pay for repairs, even though I bought it only two months ago, so I am out $700 to repair my brand new computer. I would heavily advise against buying one of these, because if 80 degree heat is enough to damage the screen, then they are essentially useless if your air conditioner goes out and you will be left with a repair bill that is half the value of the computer.</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">8</td>
+<td>Product came in excellent condition. Battery life isn’t as long as I would like it to be. Product overall works excellent.</td>
+<td>Product came in excellent condition. Battery life is not as long as I would like it to be. Product overall works excellent.</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">9</td>
+<td>I don’t what to think I bought 2017 16gb 256 ssd but I received a refurbished 2019 8g 256 perfectly packaged, I can’t put apple care I already call for that but im not sure to keep it because I want a computer of 16of ram but this one is 2019, im gonna give the chance to see how it works, And it cost me the same price of a refurbished 2019 Of apple but those ones you can put apple care</td>
+<td>I do not what to think I bought 2017 16gb 256 ssd but I received a refurbished 2019 8g 256 perfectly packaged, I cannot put apple care I already call for that but I am not sure to keep it because I want a computer of 16of ram but this one is 2019, I am going to give the chance to see how it works, And it cost me the same price of a refurbished 2019 Of apple but those ones you can put apple care</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">15</td>
+<td>KEYBOARD FAILED! I ordered this in November and started using it in January as my main “home” laptop (minimal use). The keyboard stopped working properly in June. Some letters don’t regularly work. Sometimes - but not always- the space bar leaves two spaces instead of one. I wish I spent the money to get a NEW laptop and not refurbished. This was my first refurbished purchase, which I now see is a mistake. I live in a remote area, so fixing a keyboard may outweigh the cost savings. The battery works fine. Regrets here.</td>
+<td>KEYBOARD FAILED! I ordered this in November and started using it in January as my main “home” laptop (minimal use). The keyboard stopped working properly in June. Some letters do not regularly work. Sometimes - but not always- the space bar leaves two spaces instead of one. I wish I spent the money to get a NEW laptop and not refurbished. This was my first refurbished purchase, which I now see is a mistake. I live in a remote area, so fixing a keyboard may outweigh the cost savings. The battery works fine. Regrets here.</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">12413</td>
+<td>We must all understand the expectations of purchasing used products. I bought these joy-cons used directly by Amazon as "very good condition", so I figured I would take the chance. With how great amazon is delivering quality for a great price, their reputation made me feel at ease for buying used directly from them.Instant regret when I opened the box. The right joy-con has severe drifting issue with the joystick. And there are many bite marks on both joy-cons. No doubt adding to the drifting. I did what I could to clean the base of the joystick without opening either device. But even then, major involuntary movements when using it. I have to be sure I recenter the stick after every movement to reduce drift.Might not be clear enough, but in the pictures I attached you might be able to make out the various bite marks and the damaged joystick base. Nintendo is very aware that their older joy-con controllers are prone to this drifting problem, and thus offer free repairs or replacements well past their warranty. However, that whole repair process with Nintendo takes around 3 weeks. I don't have that time, so instead I returned these to Amazon. I am hopeful that Amazon won't put these back up for sale as someone else will be disappointed :(Save yourselves the headache and invest an extra $10 for new joy-cons.</td>
+<td>We must all understand the expectations of purchasing used products. I bought these joy-cons used directly by Amazon as "very good condition", so I figured I would take the chance. With how great amazon is delivering quality for a great price, their reputation made me feel at ease for buying used directly from them.Instant regret when I opened the box. The right joy-con has severe drifting issue with the joystick. And there are many bite marks on both joy-cons. No doubt adding to the drifting. I did what I could to clean the base of the joystick without opening either device. But even then, major involuntary movements when using it. I have to be sure I recenter the stick after every movement to reduce drift.Might not be clear enough, but in the pictures I attached you might be able to make out the various bite marks and the damaged joystick base. Nintendo is very aware that their older joy-con controllers are prone to this drifting problem, and thus offer free repairs or replacements well past their warranty. However, that whole repair process with Nintendo takes around 3 weeks. I do not have that time, so instead I returned these to Amazon. I am hopeful that Amazon will not put these back up for sale as someone else will be disappointed :(Save yourselves the headache and invest an extra $10 for new joy-cons.</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">12415</td>
+<td>This is not so much a product review as a compliment, so here goes...Just wanted to give the Amazon delivery service a “Thank you”. I’ve had my Switch for almost 2 yrs and have logged many happy, sometimes frustrating hours on it. So last week when the Joy-Cons started gradually sticking I knew they needed replacing. The R stick wasn’t actually “physically” sticking to the right, but was sending the message to the game to move right when I wanted to stand my ground. Don’t know if any of you have ever tried fighting Ice Lizalfos on a mountain top while Link keeps trying to creep off the cliff, but I would not recommend it. I’d already searched to replace them, but due to the COVID pandemic Switch Joy-Cons are near impossible to get in regular grey here in Sacramento. EVERY store was wiped out. Even GameStop, Walmart, Best Buy and Fry’s couldn’t provide via store OR online. Amazon said they could deliver, but not until August 1st... it was the best offer I could get. So when that beautiful little brown box showed up yesterday afternoon, July 28th, while I was actually playing Zelda BOTW no less, the feelings of relief that swept over me can only be understated. And just in time too. Yesterday, only an hour or so before delivery, the L stick was starting to stick to the right also. Whew!.... Thanks again, Amazon for that little extra “sumthin’” you always seem to provide.P.S. Oh, and the controllers were delivered, packaged, and function perfectly. The actual Nintendo Joy-Con box was untampered and had safety seals in tact - something I always look for, especially with electronics (and food, of course).</td>
+<td>This is not so much a product review as a compliment, so here goes...Just wanted to give the Amazon delivery service a “Thank you”. I have had my Switch for almost 2 yrs and have logged many happy, sometimes frustrating hours on it. So last week when the Joy-Cons started gradually sticking I knew they needed replacing. The R stick was not actually “physically” sticking to the right, but was sending the message to the game to move right when I wanted to stand my ground. do not know if any of you have ever tried fighting Ice Lizalfos on a mountain top while Link keeps trying to creep off the cliff, but I would not recommend it. I would already searched to replace them, but due to the COVID pandemic Switch Joy-Cons are near impossible to get in regular grey here in Sacramento. EVERY store was wiped out. Even GameStop, Walmart, Best Buy and Fry’s could not provide via store OR online. Amazon said they could deliver, but not until August 1st... it was the best offer I could get. So when that beautiful little brown box showed up yesterday afternoon, July 28th, while I was actually playing Zelda BOTW no less, the feelings of relief that swept over me can only be understated. And just in time too. Yesterday, only an hour or so before delivery, the L stick was starting to stick to the right also. Whew!.... Thanks again, Amazon for that little extra “sumthin’” you always seem to provide.P.S. Oh, and the controllers were delivered, packaged, and function perfectly. The actual Nintendo Joy-Con box was untampered and had safety seals in tact - something I always look for, especially with electronics (and food, of course).</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">12416</td>
+<td>I desperately wanted to love this product. I'm a huge Nintendo fan &amp; Switch advocate. I love that they have HD rumble, an NFC reader, &amp; pretty responsive gyro controls. I even love that they can be used as individual controllers for many games. What I don't love is the horrible drift all 6 pairs I've purchased has eventually gotten (4 different pairs purchased, a blue pair, 2 yellow pair, &amp; the green/pink pair, plus 2 more pairs from purchasing systems). Before anyone wants to jump down my throat saying I should've gone to Nintendo, I actually have done that more than once. Nintendo did not charge me anything to send them for repairs because each time they claimed nothing was wrong with them &amp; the very same Joy-Cons would be returned to me. Lo &amp; behold, these Joy-Cons that were returned to me still drifted. Other than that, I've heard people say the size of these controllers aren't bothersome or small. I've also heard people say they're much too small, &amp; I certainly fall somewhere in the latter category. Holding &amp; playing my Switch in handheld is always a struggle, even for a short amount of time. I don't know if having sorta big hands was a factor but after a few months, most of my Joy-Cons also began having issues remaining securely on the side rails. This is especially true for my original Cons, they would frequently have to be clicked back into place for handheld mode. Overall I don't mind how the Joy-Cons work at all. But either I'm an incredibly unlucky sob or there is something wrong with how the control sticks are designed or manufactured.</td>
+<td>I desperately wanted to love this product. I am a huge Nintendo fan &amp; Switch advocate. I love that they have HD rumble, an NFC reader, &amp; pretty responsive gyro controls. I even love that they can be used as individual controllers for many games. What I do not love is the horrible drift all 6 pairs I have purchased has eventually gotten (4 different pairs purchased, a blue pair, 2 yellow pair, &amp; the green/pink pair, plus 2 more pairs from purchasing systems). Before anyone wants to jump down my throat saying I should have gone to Nintendo, I actually have done that more than once. Nintendo did not charge me anything to send them for repairs because each time they claimed nothing was wrong with them &amp; the very same Joy-Cons would be returned to me. Lo &amp; behold, these Joy-Cons that were returned to me still drifted. Other than that, I have heard people say the size of these controllers are not bothersome or small. I have also heard people say they are much too small, &amp; I certainly fall somewhere in the latter category. Holding &amp; playing my Switch in handheld is always a struggle, even for a short amount of time. I do not know if having sorta big hands was a factor but after a few months, most of my Joy-Cons also began having issues remaining securely on the side rails. This is especially true for my original Cons, they would frequently have to be clicked back into place for handheld mode. Overall I do not mind how the Joy-Cons work at all. But either I am an incredibly unlucky sob or there is something wrong with how the control sticks are designed or manufactured.</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">12417</td>
+<td>Bought these controllers because after a year the ones that came with the switch started to malfunction. One of the analog controllers would drift making gameplay extremely hard. It would make scrolling through menus damn near impossible. I did buy the replacement parts and fixed the remote first (because that is the much cheaper option) but within two months it started happening again so I decided to bite the bullet and replace them. Wouldn’t you know the replacements came and didn’t even last two weeks with very light use! The analog broke and the controller started drifting again. I looked it up and it turns out that this is a common problem with these remotes. I’m disappointed with nintendo. You pay a lot for these systems and the accessories I expect them to last at least a few years. I will say that Amazon was fantastic and replaced them right away. The replacement should be here today. I’m curious to see how long this one lasts.</td>
+<td>Bought these controllers because after a year the ones that came with the switch started to malfunction. One of the analog controllers would drift making gameplay extremely hard. It would make scrolling through menus damn near impossible. I did buy the replacement parts and fixed the remote first (because that is the much cheaper option) but within two months it started happening again so I decided to bite the bullet and replace them. would not you know the replacements came and did not even last two weeks with very light use! The analog broke and the controller started drifting again. I looked it up and it turns out that this is a common problem with these remotes. I am disappointed with nintendo. You pay a lot for these systems and the accessories I expect them to last at least a few years. I will say that Amazon was fantastic and replaced them right away. The replacement should be here today. I am curious to see how long this one lasts.</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">12418</td>
+<td>Edit: 2yrs later. Today is april 24th 2021 and let me say i am still disappointed. These worked but were the first to start drifting after about i dunno 1 month not bad but still upsetting for full price "new" joycons... both drift and still do till this day simply bc i have not sent them out to be fixed.1. Not new joy cons2. colors were swaped (didn’t even match what the actual box stated; (L) red (R) Blue)3. They are USEDso to start off the box of the controllers itself seemed to be slightly bent as if something heavier was placed on top. The first thing that i noticed was the colors were switched than advertised on the box (i dont mind that at all).Then i decided to check the controllers individually; both have black scratch marks as if being constantly put on and taken off of the console. With that said it already tells me they were used; now i did not pay ‘full’ price for something to be used, i initially didn’t buy them used. I could see small chips on the paint where they slide on and off of the console.Now they work, yes they seemed to work when i put them on the console; however, i haven’t actually played using them yet.I gave this 3 stars mainly for the fact that technically i didn’t get what i paid for. All in all i dont mind, as long as they work but it is upsetting to not get a good presentation.</td>
+<td>Edit: 2yrs later. Today is april 24th 2021 and let me say i am still disappointed. These worked but were the first to start drifting after about i dunno 1 month not bad but still upsetting for full price "new" joycons... both drift and still do till this day simply bc i have not sent them out to be fixed.1. Not new joy cons2. colors were swaped (did not even match what the actual box stated; (L) red (R) Blue)3. They are USEDso to start off the box of the controllers itself seemed to be slightly bent as if something heavier was placed on top. The first thing that i noticed was the colors were switched than advertised on the box (i do not mind that at all).Then i decided to check the controllers individually; both have black scratch marks as if being constantly put on and taken off of the console. With that said it already tells me they were used; now i did not pay ‘full’ price for something to be used, i initially did not buy them used. I could see small chips on the paint where they slide on and off of the console.Now they work, yes they seemed to work when i put them on the console; however, i have not actually played using them yet.I gave this 3 stars mainly for the fact that technically i did not get what i paid for. All in all i do not mind, as long as they work but it is upsetting to not get a good presentation.</td>
+</tr>
+</tbody>
+</table>
+
+<p>3400 rows × 2 columns</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="step-5-removing-accented-characters" class="level2">
+<h2 class="anchored" data-anchor-id="step-5-removing-accented-characters">Step 5: Removing accented characters</h2>
+<div id="cell-31" class="cell" data-execution_count="161">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> unidecode</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> remove_accented_chars(text):</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    text <span class="op">=</span> unidecode.unidecode(text)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> text</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-32" class="cell" data-execution_count="162">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"no_accented"</span>] <span class="op">=</span> df[<span class="st">"expand_contractions"</span>].<span class="bu">apply</span>(remove_accented_chars)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-33" class="cell" data-outputid="f50eae8a-7b20-453d-abe8-20484524882a" data-execution_count="164">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>df[df[<span class="st">"expand_contractions"</span>] <span class="op">!=</span> df[<span class="st">"no_accented"</span>]][[<span class="st">"expand_contractions"</span>, <span class="st">"no_accented"</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="164">
+<div>
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">expand_contractions</th>
+<th data-quarto-table-cell-role="th">no_accented</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">15</td>
+<td>KEYBOARD FAILED! I ordered this in November and started using it in January as my main “home” laptop (minimal use). The keyboard stopped working properly in June. Some letters do not regularly work. Sometimes - but not always- the space bar leaves two spaces instead of one. I wish I spent the money to get a NEW laptop and not refurbished. This was my first refurbished purchase, which I now see is a mistake. I live in a remote area, so fixing a keyboard may outweigh the cost savings. The battery works fine. Regrets here.</td>
+<td>KEYBOARD FAILED! I ordered this in November and started using it in January as my main "home" laptop (minimal use). The keyboard stopped working properly in June. Some letters do not regularly work. Sometimes - but not always- the space bar leaves two spaces instead of one. I wish I spent the money to get a NEW laptop and not refurbished. This was my first refurbished purchase, which I now see is a mistake. I live in a remote area, so fixing a keyboard may outweigh the cost savings. The battery works fine. Regrets here.</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">19</td>
+<td>I have been using my renewed computer for about 2 weeks now and I am so glad I bought it from “All-out-Apple” the best computer seller on Amazon! I received the 2018 MacBook Air i5 quad core 256gb and the actual specs matched the description! I use it for college for my Zoom classes and the virtual background works!! I upgraded from my 2013 MacBook Air and this one is a lot faster and a much better battery life. It also came with a brand new usb-c original Apple charger for this Mac. This computer is like-new with no scratches at all and I was able to transfer all my old data to this new computer. I would recommend this computer for students and teachers too.</td>
+<td>I have been using my renewed computer for about 2 weeks now and I am so glad I bought it from "All-out-Apple" the best computer seller on Amazon! I received the 2018 MacBook Air i5 quad core 256gb and the actual specs matched the description! I use it for college for my Zoom classes and the virtual background works!! I upgraded from my 2013 MacBook Air and this one is a lot faster and a much better battery life. It also came with a brand new usb-c original Apple charger for this Mac. This computer is like-new with no scratches at all and I was able to transfer all my old data to this new computer. I would recommend this computer for students and teachers too.</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">24</td>
+<td>Excelente producto!! Sin palabras!, Lo mejor para el trabajo, gaming, día a día, el mejor producto de apple hasta la fecha!!!</td>
+<td>Excelente producto!! Sin palabras!, Lo mejor para el trabajo, gaming, dia a dia, el mejor producto de apple hasta la fecha!!!</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">36</td>
+<td>Wow, absolutely perfect! I bought this for my daughter’s birthday and for her to use at college. She loves it!! It arrived super fast and in perfect condition!! We are extremely pleased with this MacBook. Thanks for a great purchase!</td>
+<td>Wow, absolutely perfect! I bought this for my daughter's birthday and for her to use at college. She loves it!! It arrived super fast and in perfect condition!! We are extremely pleased with this MacBook. Thanks for a great purchase!</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">48</td>
+<td>I am kindof dissatisfied. So I just opened it and cannot tell you everything, however I can tell you what I do not like that I already found. The apple emblem is cracked and the power cord that it came with has MANY scratches, bumps, and scrapes all over it so I question if the cable even charges properly. I know this is referbished, but can we please follow the policy "external finishes like new” legit? Aside from those so far I am satisfied. Scrolling on the mouse pad is Kindof meh but maybe it is because I am not use to it yet? The keys are in fine condition and the finger print scanner works. I was worried with some of the reviews saying that they got a grey instead of a space grey but mine is space grey so I am very happy. My fave color. I can leave another review with more information after a week or so of use.</td>
+<td>I am kindof dissatisfied. So I just opened it and cannot tell you everything, however I can tell you what I do not like that I already found. The apple emblem is cracked and the power cord that it came with has MANY scratches, bumps, and scrapes all over it so I question if the cable even charges properly. I know this is referbished, but can we please follow the policy "external finishes like new" legit? Aside from those so far I am satisfied. Scrolling on the mouse pad is Kindof meh but maybe it is because I am not use to it yet? The keys are in fine condition and the finger print scanner works. I was worried with some of the reviews saying that they got a grey instead of a space grey but mine is space grey so I am very happy. My fave color. I can leave another review with more information after a week or so of use.</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">12362</td>
+<td>Compré este par de Joy-Con para reemplazar los grises que venían originalmente con mi consola, pues esos tenían input lag, muy notorio especialmente en el control derecho.Estos Joy-Con color neon venían "sellados", pero pareciera que retiraron el sello original, abrieron la caja, usaron los controles y luego los volvieron a colocar. Digo lo de los sellos porque en la caja hay partes donde falta pintura y se nota que un sello la retiró.Además menciono que usaron los controles, debido a que recién sacados de la caja, tienen marcas de haber sido introducidos en una consola (los rieles dejaron marca). Lo cual realmente no da entera confianza de que el producto sea nuevo.El producto funciona, pero cuesta mucho creer que sea 100% nuevo. Además afuera de la caja menciona que debe incluirse una guía de inicio rápido y una póliza de garantía, cosa que no venía incluída.</td>
+<td>Compre este par de Joy-Con para reemplazar los grises que venian originalmente con mi consola, pues esos tenian input lag, muy notorio especialmente en el control derecho.Estos Joy-Con color neon venian "sellados", pero pareciera que retiraron el sello original, abrieron la caja, usaron los controles y luego los volvieron a colocar. Digo lo de los sellos porque en la caja hay partes donde falta pintura y se nota que un sello la retiro.Ademas menciono que usaron los controles, debido a que recien sacados de la caja, tienen marcas de haber sido introducidos en una consola (los rieles dejaron marca). Lo cual realmente no da entera confianza de que el producto sea nuevo.El producto funciona, pero cuesta mucho creer que sea 100% nuevo. Ademas afuera de la caja menciona que debe incluirse una guia de inicio rapido y una poliza de garantia, cosa que no venia incluida.</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">12363</td>
+<td>A ciencia cierta no sé que pasó, los dos primeros cinco días de uso con mi nintendo switch en modo de sobremesa, al jugar mario odyssey me dieron muchos problemas estoy joy con nuevos. Inicia el juego, inicia la partida y parece que todo normal, pero después de los primeros cinco minutos de juego, dejaban de funcionar, se apagaban/desconectaban había que oprimir los botones para que la consola los reconociera nuevamente. No funcionó, los acoplé a la consola y los reconoció de inmediato, volví a sobremesa y oprimí los botones y volvieron a funcionar. Así los 4 días restantes, pensé en hacer la devolución pero finalmente terminó por dejar de pasar ese error y amarga experiencia. Los utilizo diariamente y no ha vuelto a suceder. Ahora que sú estética es excelente son realmente bonitos en color naranja y morado neón, no creo que vuelva a suceder dicho error menos con nintendo en la mira de todos pero quién sabe. Los joy con de mi consola nunca me hicieron eso de dejar de funcionar sin embargo el control izquierdo tiene problema con la palanquilla izquierda que hace que el personaje se mueva solo, lo que me hizo optar por estos atractivos joy con nuevos y chulos de bonitos, pero parece que todos los productos de nintendo switch acaban teniendo algún detallito. Después de esos días frustrantes ahora estoy muy contento con su uso.</td>
+<td>A ciencia cierta no se que paso, los dos primeros cinco dias de uso con mi nintendo switch en modo de sobremesa, al jugar mario odyssey me dieron muchos problemas estoy joy con nuevos. Inicia el juego, inicia la partida y parece que todo normal, pero despues de los primeros cinco minutos de juego, dejaban de funcionar, se apagaban/desconectaban habia que oprimir los botones para que la consola los reconociera nuevamente. No funciono, los acople a la consola y los reconocio de inmediato, volvi a sobremesa y oprimi los botones y volvieron a funcionar. Asi los 4 dias restantes, pense en hacer la devolucion pero finalmente termino por dejar de pasar ese error y amarga experiencia. Los utilizo diariamente y no ha vuelto a suceder. Ahora que su estetica es excelente son realmente bonitos en color naranja y morado neon, no creo que vuelva a suceder dicho error menos con nintendo en la mira de todos pero quien sabe. Los joy con de mi consola nunca me hicieron eso de dejar de funcionar sin embargo el control izquierdo tiene problema con la palanquilla izquierda que hace que el personaje se mueva solo, lo que me hizo optar por estos atractivos joy con nuevos y chulos de bonitos, pero parece que todos los productos de nintendo switch acaban teniendo algun detallito. Despues de esos dias frustrantes ahora estoy muy contento con su uso.</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">12377</td>
+<td>Súper bien</td>
+<td>Super bien</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">12415</td>
+<td>This is not so much a product review as a compliment, so here goes...Just wanted to give the Amazon delivery service a “Thank you”. I have had my Switch for almost 2 yrs and have logged many happy, sometimes frustrating hours on it. So last week when the Joy-Cons started gradually sticking I knew they needed replacing. The R stick was not actually “physically” sticking to the right, but was sending the message to the game to move right when I wanted to stand my ground. do not know if any of you have ever tried fighting Ice Lizalfos on a mountain top while Link keeps trying to creep off the cliff, but I would not recommend it. I would already searched to replace them, but due to the COVID pandemic Switch Joy-Cons are near impossible to get in regular grey here in Sacramento. EVERY store was wiped out. Even GameStop, Walmart, Best Buy and Fry’s could not provide via store OR online. Amazon said they could deliver, but not until August 1st... it was the best offer I could get. So when that beautiful little brown box showed up yesterday afternoon, July 28th, while I was actually playing Zelda BOTW no less, the feelings of relief that swept over me can only be understated. And just in time too. Yesterday, only an hour or so before delivery, the L stick was starting to stick to the right also. Whew!.... Thanks again, Amazon for that little extra “sumthin’” you always seem to provide.P.S. Oh, and the controllers were delivered, packaged, and function perfectly. The actual Nintendo Joy-Con box was untampered and had safety seals in tact - something I always look for, especially with electronics (and food, of course).</td>
+<td>This is not so much a product review as a compliment, so here goes...Just wanted to give the Amazon delivery service a "Thank you". I have had my Switch for almost 2 yrs and have logged many happy, sometimes frustrating hours on it. So last week when the Joy-Cons started gradually sticking I knew they needed replacing. The R stick was not actually "physically" sticking to the right, but was sending the message to the game to move right when I wanted to stand my ground. do not know if any of you have ever tried fighting Ice Lizalfos on a mountain top while Link keeps trying to creep off the cliff, but I would not recommend it. I would already searched to replace them, but due to the COVID pandemic Switch Joy-Cons are near impossible to get in regular grey here in Sacramento. EVERY store was wiped out. Even GameStop, Walmart, Best Buy and Fry's could not provide via store OR online. Amazon said they could deliver, but not until August 1st... it was the best offer I could get. So when that beautiful little brown box showed up yesterday afternoon, July 28th, while I was actually playing Zelda BOTW no less, the feelings of relief that swept over me can only be understated. And just in time too. Yesterday, only an hour or so before delivery, the L stick was starting to stick to the right also. Whew!.... Thanks again, Amazon for that little extra "sumthin'" you always seem to provide.P.S. Oh, and the controllers were delivered, packaged, and function perfectly. The actual Nintendo Joy-Con box was untampered and had safety seals in tact - something I always look for, especially with electronics (and food, of course).</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">12418</td>
+<td>Edit: 2yrs later. Today is april 24th 2021 and let me say i am still disappointed. These worked but were the first to start drifting after about i dunno 1 month not bad but still upsetting for full price "new" joycons... both drift and still do till this day simply bc i have not sent them out to be fixed.1. Not new joy cons2. colors were swaped (did not even match what the actual box stated; (L) red (R) Blue)3. They are USEDso to start off the box of the controllers itself seemed to be slightly bent as if something heavier was placed on top. The first thing that i noticed was the colors were switched than advertised on the box (i do not mind that at all).Then i decided to check the controllers individually; both have black scratch marks as if being constantly put on and taken off of the console. With that said it already tells me they were used; now i did not pay ‘full’ price for something to be used, i initially did not buy them used. I could see small chips on the paint where they slide on and off of the console.Now they work, yes they seemed to work when i put them on the console; however, i have not actually played using them yet.I gave this 3 stars mainly for the fact that technically i did not get what i paid for. All in all i do not mind, as long as they work but it is upsetting to not get a good presentation.</td>
+<td>Edit: 2yrs later. Today is april 24th 2021 and let me say i am still disappointed. These worked but were the first to start drifting after about i dunno 1 month not bad but still upsetting for full price "new" joycons... both drift and still do till this day simply bc i have not sent them out to be fixed.1. Not new joy cons2. colors were swaped (did not even match what the actual box stated; (L) red (R) Blue)3. They are USEDso to start off the box of the controllers itself seemed to be slightly bent as if something heavier was placed on top. The first thing that i noticed was the colors were switched than advertised on the box (i do not mind that at all).Then i decided to check the controllers individually; both have black scratch marks as if being constantly put on and taken off of the console. With that said it already tells me they were used; now i did not pay 'full' price for something to be used, i initially did not buy them used. I could see small chips on the paint where they slide on and off of the console.Now they work, yes they seemed to work when i put them on the console; however, i have not actually played using them yet.I gave this 3 stars mainly for the fact that technically i did not get what i paid for. All in all i do not mind, as long as they work but it is upsetting to not get a good presentation.</td>
+</tr>
+</tbody>
+</table>
+
+<p>1466 rows × 2 columns</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="step-6-collapse-duplicated-punctuation" class="level2">
+<h2 class="anchored" data-anchor-id="step-6-collapse-duplicated-punctuation">Step 6: Collapse duplicated punctuation</h2>
+<div id="cell-35" class="cell" data-execution_count="184">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>punc <span class="op">=</span> string.punctuation</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> remove_consecutive_punctuation(text):</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>    newtext <span class="op">=</span> []</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> k, g <span class="kw">in</span> groupby(text):</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> k <span class="kw">in</span> punc:</span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>            newtext.append(k <span class="op">+</span> <span class="st">" "</span>)</span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>        <span class="cf">else</span>:</span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>            newtext.extend(g)</span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="st">''</span>.join(newtext) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-36" class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>remove_consecutive_punctuation(<span class="st">"Hello World..Now I can see you"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-37" class="cell" data-execution_count="185">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"no_consecutive_punc"</span>] <span class="op">=</span> df[<span class="st">"expand_contractions"</span>].<span class="bu">apply</span>(remove_consecutive_punctuation)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-38" class="cell" data-outputid="28022f4e-f40c-4154-ceb5-ee0f257a989b" data-execution_count="186">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>df[df[<span class="st">"expand_contractions"</span>] <span class="op">!=</span> df[<span class="st">"no_consecutive_punc"</span>]][[<span class="st">"expand_contractions"</span>, <span class="st">"no_consecutive_punc"</span>]]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-display" data-execution_count="186">
+<div>
+<div>
+
+
+<table class="dataframe table table-sm table-striped small" data-quarto-postprocess="true" data-border="1">
+<thead>
+<tr class="header">
+<th data-quarto-table-cell-role="th"></th>
+<th data-quarto-table-cell-role="th">expand_contractions</th>
+<th data-quarto-table-cell-role="th">no_consecutive_punc</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">1</td>
+<td>Best computer I have ever own!! This computer forces me to be productive. I used to wait around for this spinning wheel to stop, and now I can do everything so quickly that I think I almost miss the waiting part. Ha ha. I do not have time to get coffee anymore. All my apps run smoothly, including adobe illustrator and Photoshop, and they work perfectly. Almost too perfect. I really love this computer. I hope it last me for many years to come.</td>
+<td>Best computer I have ever own! This computer forces me to be productive. I used to wait around for this spinning wheel to stop, and now I can do everything so quickly that I think I almost miss the waiting part. Ha ha. I do not have time to get coffee anymore. All my apps run smoothly, including adobe illustrator and Photoshop, and they work perfectly. Almost too perfect. I really love this computer. I hope it last me for many years to come.</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">11</td>
+<td>Positivo, EXCELENTE EQUIPO!!!</td>
+<td>Positivo, EXCELENTE EQUIPO!</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">19</td>
+<td>I have been using my renewed computer for about 2 weeks now and I am so glad I bought it from “All-out-Apple” the best computer seller on Amazon! I received the 2018 MacBook Air i5 quad core 256gb and the actual specs matched the description! I use it for college for my Zoom classes and the virtual background works!! I upgraded from my 2013 MacBook Air and this one is a lot faster and a much better battery life. It also came with a brand new usb-c original Apple charger for this Mac. This computer is like-new with no scratches at all and I was able to transfer all my old data to this new computer. I would recommend this computer for students and teachers too.</td>
+<td>I have been using my renewed computer for about 2 weeks now and I am so glad I bought it from “All-out-Apple” the best computer seller on Amazon! I received the 2018 MacBook Air i5 quad core 256gb and the actual specs matched the description! I use it for college for my Zoom classes and the virtual background works! I upgraded from my 2013 MacBook Air and this one is a lot faster and a much better battery life. It also came with a brand new usb-c original Apple charger for this Mac. This computer is like-new with no scratches at all and I was able to transfer all my old data to this new computer. I would recommend this computer for students and teachers too.</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">24</td>
+<td>Excelente producto!! Sin palabras!, Lo mejor para el trabajo, gaming, día a día, el mejor producto de apple hasta la fecha!!!</td>
+<td>Excelente producto! Sin palabras!, Lo mejor para el trabajo, gaming, día a día, el mejor producto de apple hasta la fecha!</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">26</td>
+<td>I am extremely pleased with this early 2015, 13" Macbook Pro! There is not one mark on the case, screen, keyboard - it is exactly like the brand-new one I purchased from Apple, 5 years ago!! The battery cycle count is only 21 - truly remarkable! It also came with a genuine MagSafe 2 Apple charger (I did check, and it is new and authentic). I am very happy with the purchase so far - thank you for selling such a quality item!</td>
+<td>I am extremely pleased with this early 2015, 13" Macbook Pro! There is not one mark on the case, screen, keyboard - it is exactly like the brand-new one I purchased from Apple, 5 years ago! The battery cycle count is only 21 - truly remarkable! It also came with a genuine MagSafe 2 Apple charger (I did check, and it is new and authentic). I am very happy with the purchase so far - thank you for selling such a quality item!</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">...</td>
+<td>...</td>
+<td>...</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">12405</td>
+<td>These were an early Christmas gift for my son who has everything he wants, he literally does not want or need anything, so I am always far stretched when trying to figure out what to give him for birthdays and Christmas.I was relieved as heck when he said he wanted a set of these controllers. I could not wait for Christmas because he had the new Super Mario Party game and we were having a few people come to the house to play it.The controllers arrived just in time for our Mario Party , but my son and I played to practice the new game the day ahead. I usually am triple-thumbed when it comes to controlling the controllers but these were surprisingly easy for me to use.Note:I discovered that using a certain color controller gives that user certain controls over the game that the other users do not have. For instance, when using a particular color controller, I had the ability to click the game back to the previous screen, thus making everyone groan loudly and wait for me to click us back to the game at hand. :)~~~~</td>
+<td>These were an early Christmas gift for my son who has everything he wants, he literally does not want or need anything, so I am always far stretched when trying to figure out what to give him for birthdays and Christmas.I was relieved as heck when he said he wanted a set of these controllers. I could not wait for Christmas because he had the new Super Mario Party game and we were having a few people come to the house to play it.The controllers arrived just in time for our Mario Party , but my son and I played to practice the new game the day ahead. I usually am triple-thumbed when it comes to controlling the controllers but these were surprisingly easy for me to use.Note:I discovered that using a certain color controller gives that user certain controls over the game that the other users do not have. For instance, when using a particular color controller, I had the ability to click the game back to the previous screen, thus making everyone groan loudly and wait for me to click us back to the game at hand. :)~</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">12408</td>
+<td>Did not purchase from Amazon as third party sellers were of course raising prices due to low stock and high demand. Managed to find these MSRP.I had purchased the Neon Blue/Red Switch and wanted these because I read they were opposite the set that came with the Neon Switch. This is true. Purchasing these will give you a complete set of Blue and Red. So if you want to throw them on your Switch and have matching colors, you can now!They are a little on the expensive side compared to a typical controller from other console makers, but I get it. They are individual controllers for Multiplayer games and are pretty sophisticated. The motion sending is great, the rumble feels nice, the colors really pop! And the batteries last a very long time. You will not have to charge these often!Speaking of charging you have two options: purchase a charging dock to charge them, or have them connected to your Switch. I never found keeping the extra pairs charged because you will probably just have them attached to the console anyway. I rotate them out so they are always charged. The fact that the battery life is ~20 hrs, you will have a hard time and rarely be low on battery. Plus having more joycons means more Multiplayer fun!!</td>
+<td>Did not purchase from Amazon as third party sellers were of course raising prices due to low stock and high demand. Managed to find these MSRP.I had purchased the Neon Blue/Red Switch and wanted these because I read they were opposite the set that came with the Neon Switch. This is true. Purchasing these will give you a complete set of Blue and Red. So if you want to throw them on your Switch and have matching colors, you can now!They are a little on the expensive side compared to a typical controller from other console makers, but I get it. They are individual controllers for Multiplayer games and are pretty sophisticated. The motion sending is great, the rumble feels nice, the colors really pop! And the batteries last a very long time. You will not have to charge these often!Speaking of charging you have two options: purchase a charging dock to charge them, or have them connected to your Switch. I never found keeping the extra pairs charged because you will probably just have them attached to the console anyway. I rotate them out so they are always charged. The fact that the battery life is ~20 hrs, you will have a hard time and rarely be low on battery. Plus having more joycons means more Multiplayer fun!</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">12410</td>
+<td>I have been a Nintendo fan since the late 80's. I love their products for the most part. The Switch seems like a high water mark for innovation and functionality, with one caveat. The joy-con SUCKS!We have the blue and red joy-cons which came with the Switch. I bought the Pink &amp; Green joy-cons so we could play Mario Party (which we LOVE). Initially, we had no problems with the controllers. I was not impressed with the range, but whatever. Also, the delay while playing wirelessly is pitiable. If you are playing any game which requires timed button presses (Mario Party, Smash Bro's, Hollow Knight...) you cannot depend on accuracy, which is downright silly. Latency is not an issue for any other system's controllers.Now, I have got a blue controller which will not hold a charge, a pink controller who is "L" button does not register and my green controller's "X" button sticks. Perhaps these issues are from maltreatment. I do have three kids. But I was their age when I got my NES and I abused the heck out of those controllers and they STILL work today!I want to love the Joy-cons. they are adorable. The ability to switch between two and one controller play is a great feat in system engineering. The Switch system itself is a GREAT system. To ask $70!!! for garbage controllers which have lower range and higher latency than any other controller is a poor business practice. You are better than this Nintendo.</td>
+<td>I have been a Nintendo fan since the late 80's. I love their products for the most part. The Switch seems like a high water mark for innovation and functionality, with one caveat. The joy-con SUCKS!We have the blue and red joy-cons which came with the Switch. I bought the Pink &amp; Green joy-cons so we could play Mario Party (which we LOVE). Initially, we had no problems with the controllers. I was not impressed with the range, but whatever. Also, the delay while playing wirelessly is pitiable. If you are playing any game which requires timed button presses (Mario Party, Smash Bro's, Hollow Knight.) you cannot depend on accuracy, which is downright silly. Latency is not an issue for any other system's controllers.Now, I have got a blue controller which will not hold a charge, a pink controller who is "L" button does not register and my green controller's "X" button sticks. Perhaps these issues are from maltreatment. I do have three kids. But I was their age when I got my NES and I abused the heck out of those controllers and they STILL work today!I want to love the Joy-cons. they are adorable. The ability to switch between two and one controller play is a great feat in system engineering. The Switch system itself is a GREAT system. To ask $70! for garbage controllers which have lower range and higher latency than any other controller is a poor business practice. You are better than this Nintendo.</td>
+</tr>
+<tr class="even">
+<td data-quarto-table-cell-role="th">12415</td>
+<td>This is not so much a product review as a compliment, so here goes...Just wanted to give the Amazon delivery service a “Thank you”. I have had my Switch for almost 2 yrs and have logged many happy, sometimes frustrating hours on it. So last week when the Joy-Cons started gradually sticking I knew they needed replacing. The R stick was not actually “physically” sticking to the right, but was sending the message to the game to move right when I wanted to stand my ground. do not know if any of you have ever tried fighting Ice Lizalfos on a mountain top while Link keeps trying to creep off the cliff, but I would not recommend it. I would already searched to replace them, but due to the COVID pandemic Switch Joy-Cons are near impossible to get in regular grey here in Sacramento. EVERY store was wiped out. Even GameStop, Walmart, Best Buy and Fry’s could not provide via store OR online. Amazon said they could deliver, but not until August 1st... it was the best offer I could get. So when that beautiful little brown box showed up yesterday afternoon, July 28th, while I was actually playing Zelda BOTW no less, the feelings of relief that swept over me can only be understated. And just in time too. Yesterday, only an hour or so before delivery, the L stick was starting to stick to the right also. Whew!.... Thanks again, Amazon for that little extra “sumthin’” you always seem to provide.P.S. Oh, and the controllers were delivered, packaged, and function perfectly. The actual Nintendo Joy-Con box was untampered and had safety seals in tact - something I always look for, especially with electronics (and food, of course).</td>
+<td>This is not so much a product review as a compliment, so here goes.Just wanted to give the Amazon delivery service a “Thank you”. I have had my Switch for almost 2 yrs and have logged many happy, sometimes frustrating hours on it. So last week when the Joy-Cons started gradually sticking I knew they needed replacing. The R stick was not actually “physically” sticking to the right, but was sending the message to the game to move right when I wanted to stand my ground. do not know if any of you have ever tried fighting Ice Lizalfos on a mountain top while Link keeps trying to creep off the cliff, but I would not recommend it. I would already searched to replace them, but due to the COVID pandemic Switch Joy-Cons are near impossible to get in regular grey here in Sacramento. EVERY store was wiped out. Even GameStop, Walmart, Best Buy and Fry’s could not provide via store OR online. Amazon said they could deliver, but not until August 1st. it was the best offer I could get. So when that beautiful little brown box showed up yesterday afternoon, July 28th, while I was actually playing Zelda BOTW no less, the feelings of relief that swept over me can only be understated. And just in time too. Yesterday, only an hour or so before delivery, the L stick was starting to stick to the right also. Whew!. Thanks again, Amazon for that little extra “sumthin’” you always seem to provide.P.S. Oh, and the controllers were delivered, packaged, and function perfectly. The actual Nintendo Joy-Con box was untampered and had safety seals in tact - something I always look for, especially with electronics (and food, of course).</td>
+</tr>
+<tr class="odd">
+<td data-quarto-table-cell-role="th">12418</td>
+<td>Edit: 2yrs later. Today is april 24th 2021 and let me say i am still disappointed. These worked but were the first to start drifting after about i dunno 1 month not bad but still upsetting for full price "new" joycons... both drift and still do till this day simply bc i have not sent them out to be fixed.1. Not new joy cons2. colors were swaped (did not even match what the actual box stated; (L) red (R) Blue)3. They are USEDso to start off the box of the controllers itself seemed to be slightly bent as if something heavier was placed on top. The first thing that i noticed was the colors were switched than advertised on the box (i do not mind that at all).Then i decided to check the controllers individually; both have black scratch marks as if being constantly put on and taken off of the console. With that said it already tells me they were used; now i did not pay ‘full’ price for something to be used, i initially did not buy them used. I could see small chips on the paint where they slide on and off of the console.Now they work, yes they seemed to work when i put them on the console; however, i have not actually played using them yet.I gave this 3 stars mainly for the fact that technically i did not get what i paid for. All in all i do not mind, as long as they work but it is upsetting to not get a good presentation.</td>
+<td>Edit: 2yrs later. Today is april 24th 2021 and let me say i am still disappointed. These worked but were the first to start drifting after about i dunno 1 month not bad but still upsetting for full price "new" joycons. both drift and still do till this day simply bc i have not sent them out to be fixed.1. Not new joy cons2. colors were swaped (did not even match what the actual box stated; (L) red (R) Blue)3. They are USEDso to start off the box of the controllers itself seemed to be slightly bent as if something heavier was placed on top. The first thing that i noticed was the colors were switched than advertised on the box (i do not mind that at all).Then i decided to check the controllers individually; both have black scratch marks as if being constantly put on and taken off of the console. With that said it already tells me they were used; now i did not pay ‘full’ price for something to be used, i initially did not buy them used. I could see small chips on the paint where they slide on and off of the console.Now they work, yes they seemed to work when i put them on the console; however, i have not actually played using them yet.I gave this 3 stars mainly for the fact that technically i did not get what i paid for. All in all i do not mind, as long as they work but it is upsetting to not get a good presentation.</td>
+</tr>
+</tbody>
+</table>
+
+<p>1113 rows × 2 columns</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="step-7-filter-languages-english-only" class="level2">
+<h2 class="anchored" data-anchor-id="step-7-filter-languages-english-only">Step 7: Filter Languages (English only)</h2>
+<div id="cell-40" class="cell" data-execution_count="252">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>nlp.add_pipe(LanguageDetector(), name<span class="op">=</span><span class="st">'language_detector'</span>, last<span class="op">=</span><span class="va">True</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-41" class="cell" data-execution_count="253">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> detect_lang(text):</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>    doc <span class="op">=</span> nlp(text)</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>    lang <span class="op">=</span> doc._.language[<span class="st">'language'</span>]</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> lang</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-42" class="cell" data-execution_count="254">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">"lang"</span>] <span class="op">=</span> df[<span class="st">"no_consecutive_punc"</span>].<span class="bu">apply</span>(detect_lang)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-43" class="cell" data-outputid="95386ff4-d67e-4a9f-e784-a7be56e5a1db" data-execution_count="255">
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>non_english_df <span class="op">=</span> df[df.lang <span class="op">!=</span> <span class="st">"en"</span>][[<span class="st">"no_consecutive_punc"</span>, <span class="st">"lang"</span>]]</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"number of non english comments"</span>, non_english_df.shape)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>number of non english comments (2559, 2)</code></pre>
+</div>
+</div>
+<div id="cell-44" class="cell" data-execution_count="256">
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>df.to_csv(<span class="st">"preprocessed.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-45" class="cell" data-execution_count="258">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>filtered_df <span class="op">=</span> df[df.lang <span class="op">==</span> <span class="st">"en"</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-46" class="cell" data-outputid="a20c150b-2e23-4ba3-f9e0-37165a6b35c8" data-execution_count="260">
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Number of data before filter:"</span>, <span class="bu">len</span>(df))</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Number of data after filter:"</span>, <span class="bu">len</span>(filtered_df))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Number of data before filter: 12416
+Number of data after filter: 9857</code></pre>
+</div>
+</div>
+</section>
+<section id="step-8-lower-case" class="level2">
+<h2 class="anchored" data-anchor-id="step-8-lower-case">Step 8: Lower case</h2>
+<div id="cell-48" class="cell">
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>df[<span class="st">'lower_case'</span>] <span class="op">=</span> df[<span class="st">"no_consecutive_punc"</span>].<span class="bu">str</span>.lower()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="cell-49" class="cell">
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>df.to_csv(<span class="st">"preprocessed.csv"</span>, index<span class="op">=</span><span class="va">False</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="discussion" class="level1">
+<h1>Discussion</h1>
+<p>There some other techniques that can be considered depends on your task at hand. For example, remove numbers or convert text to number or vice versa.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
