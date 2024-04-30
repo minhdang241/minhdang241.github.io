@@ -6,10 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2023-01-29">
-<meta name="description" content="A note on chapter 6 of the book Designing Data-Intensive Applications">
 
-<title>Minh Dang - Chapter 6 - Partitioning</title>
+<title>Minh Dang - List 100</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -25,21 +23,21 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="../site_libs/clipboard/clipboard.min.js"></script>
-<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="../site_libs/quarto-search/fuse.min.js"></script>
-<script src="../site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="../">
-<script src="../site_libs/quarto-html/quarto.js"></script>
-<script src="../site_libs/quarto-html/popper.min.js"></script>
-<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="../site_libs/quarto-html/anchor.min.js"></script>
-<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -69,17 +67,17 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
 
-<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-fixed">
+<body class="nav-fixed fullcontent">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
     <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
       <div class="navbar-brand-container mx-auto">
-    <a class="navbar-brand" href="../index.html">
+    <a class="navbar-brand" href="./index.html">
     <span class="navbar-title">Minh Dang</span>
     </a>
   </div>
@@ -90,11 +88,11 @@ ul.task-list li input[type="checkbox"] {
           <div class="collapse navbar-collapse" id="navbarCollapse">
             <ul class="navbar-nav navbar-nav-scroll ms-auto">
   <li class="nav-item">
-    <a class="nav-link" href="../list_100.html"> 
+    <a class="nav-link active" href="./list_100.html" aria-current="page"> 
 <span class="menu-text">List 100</span></a>
   </li>  
   <li class="nav-item">
-    <a class="nav-link" href="../about.html"> 
+    <a class="nav-link" href="./about.html"> 
 <span class="menu-text">About</span></a>
   </li>  
   <li class="nav-item compact">
@@ -118,63 +116,20 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#chapter-6-partitioning" id="toc-chapter-6-partitioning" class="nav-link active" data-scroll-target="#chapter-6-partitioning">Chapter 6: Partitioning</a>
-  <ul class="collapse">
-  <li><a href="#purpose" id="toc-purpose" class="nav-link" data-scroll-target="#purpose">Purpose</a></li>
-  <li><a href="#partitioning-of-key-value-data" id="toc-partitioning-of-key-value-data" class="nav-link" data-scroll-target="#partitioning-of-key-value-data">Partitioning of Key-Value Data</a>
-  <ul class="collapse">
-  <li><a href="#partitioning-by-key-range" id="toc-partitioning-by-key-range" class="nav-link" data-scroll-target="#partitioning-by-key-range">Partitioning by Key Range</a></li>
-  <li><a href="#partitioning-by-hash-of-key" id="toc-partitioning-by-hash-of-key" class="nav-link" data-scroll-target="#partitioning-by-hash-of-key">Partitioning by Hash of Key</a></li>
-  <li><a href="#skewed-workloads-and-relieving-hot-spots" id="toc-skewed-workloads-and-relieving-hot-spots" class="nav-link" data-scroll-target="#skewed-workloads-and-relieving-hot-spots">Skewed Workloads and Relieving Hot Spots</a></li>
-  </ul></li>
-  <li><a href="#partitioning-and-secondary-indexes" id="toc-partitioning-and-secondary-indexes" class="nav-link" data-scroll-target="#partitioning-and-secondary-indexes">Partitioning and Secondary Indexes</a>
-  <ul class="collapse">
-  <li><a href="#partitioning-secondary-indexes-by-document" id="toc-partitioning-secondary-indexes-by-document" class="nav-link" data-scroll-target="#partitioning-secondary-indexes-by-document">Partitioning Secondary Indexes by Document</a></li>
-  <li><a href="#partitioning-secondary-indexes-by-term" id="toc-partitioning-secondary-indexes-by-term" class="nav-link" data-scroll-target="#partitioning-secondary-indexes-by-term">Partitioning Secondary Indexes by Term</a></li>
-  </ul></li>
-  <li><a href="#rebalancing-partitions" id="toc-rebalancing-partitions" class="nav-link" data-scroll-target="#rebalancing-partitions">Rebalancing Partitions</a>
-  <ul class="collapse">
-  <li><a href="#rebalancing-strategies" id="toc-rebalancing-strategies" class="nav-link" data-scroll-target="#rebalancing-strategies">Rebalancing Strategies</a></li>
-  </ul></li>
-  <li><a href="#glossary" id="toc-glossary" class="nav-link" data-scroll-target="#glossary">Glossary:</a></li>
-  </ul></li>
-  </ul>
-</nav>
-    </div>
+    
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Chapter 6 - Partitioning</h1>
-  <div class="quarto-categories">
-    <div class="quarto-category">theory</div>
-    <div class="quarto-category">software_engineering</div>
-    <div class="quarto-category">DDIA</div>
-  </div>
-  </div>
-
-<div>
-  <div class="description">
-    A note on chapter 6 of the book Designing Data-Intensive Applications
-  </div>
+<h1 class="title">List 100</h1>
 </div>
+
 
 
 <div class="quarto-title-meta">
 
     
-    <div>
-    <div class="quarto-title-meta-heading">Published</div>
-    <div class="quarto-title-meta-contents">
-      <p class="date">January 29, 2023</p>
-    </div>
-  </div>
   
     
   </div>
@@ -184,106 +139,25 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="chapter-6-partitioning" class="level1">
-<h1>Chapter 6: Partitioning</h1>
-<blockquote class="blockquote">
-<p><em>partition</em> == <em>shard</em> in MongoDB, Elasticsearch, and SolrCloud == <em>region</em> in HBase == <em>tablet</em> in Bigtable == a <em>vnode</em> in Cassandra and Riak == <em>vBucket</em> in CouchBase.</p>
-</blockquote>
-<section id="purpose" class="level2">
-<h2 class="anchored" data-anchor-id="purpose">Purpose</h2>
-<p>Partitioning helps to improve scalability. A large dataset can be stored across many disks and the query load can be executed by multiple processors.</p>
-</section>
-<section id="partitioning-of-key-value-data" class="level2">
-<h2 class="anchored" data-anchor-id="partitioning-of-key-value-data">Partitioning of Key-Value Data</h2>
-<blockquote class="blockquote">
-<p>A Hot spot: A partition with a disproportionately high load.</p>
-</blockquote>
-<section id="partitioning-by-key-range" class="level3">
-<h3 class="anchored" data-anchor-id="partitioning-by-key-range">Partitioning by Key Range</h3>
-<p>Assign a range of <strong>sorted keys</strong> to a partition.</p>
-<p><strong>Note:</strong></p>
-<p>Sorting helps to improve the performance of range queries. Yet, the key should be chosen with caution to avoid hot spots in case the application often accesses the data with close keys in the sorted order.</p>
-</section>
-<section id="partitioning-by-hash-of-key" class="level3">
-<h3 class="anchored" data-anchor-id="partitioning-by-hash-of-key">Partitioning by Hash of Key</h3>
-<p>Assign a range of hash values (hashing keys) to a partition.</p>
-<p><strong>Note:</strong></p>
-<p>This approach makes sure that keys are distributed evenly across partitions since it destroys the key order - after hashing, two similar keys will no longer close in the sorted order.</p>
-</section>
-<section id="skewed-workloads-and-relieving-hot-spots" class="level3">
-<h3 class="anchored" data-anchor-id="skewed-workloads-and-relieving-hot-spots">Skewed Workloads and Relieving Hot Spots</h3>
-<p>In either case, there is still a chance to suffer the celebrity issue since it does not depend on the key ranges but the key itself. To solve this problem, we can add a random element to the key. For example, adding a 2-digit decimal to the key will make the data for that key split into 100 keys. Yet, this solution comes with a performance degradation when read since we have to request data from 100 keys instead of 1. Also, not all the key needs to be split, optimally, we should detect which key has high throughput and split it.</p>
-</section>
-</section>
-<section id="partitioning-and-secondary-indexes" class="level2">
-<h2 class="anchored" data-anchor-id="partitioning-and-secondary-indexes">Partitioning and Secondary Indexes</h2>
-<blockquote class="blockquote">
-<p>The secondary index is used to search for occurrences of a particular value.</p>
-</blockquote>
-<p>The problem with secondary indexes is that they don’t neatly map to partitions.</p>
-<section id="partitioning-secondary-indexes-by-document" class="level3">
-<h3 class="anchored" data-anchor-id="partitioning-secondary-indexes-by-document">Partitioning Secondary Indexes by Document</h3>
-<p><img src="{{ site.baseurl }}/images/eb58f064e477183561d38b8d1c0f721bf7617393.png" title="Partitioning secondary indexes by document" class="img-fluid"></p>
-<p>In this approach, we create local indexes for each partition. In order words, each partition maintains its secondary indexes, covering only the documents available in that partition.</p>
-<p>For example, after we create the secondary index on&nbsp;<strong>color</strong>. When a red car with ID&nbsp;<strong>306</strong>&nbsp;is added to the database, the database partition of partition 0 automatically adds the ID of 306 to the list of document IDs for the index entry <code>color:red</code>.</p>
-<p>This approach adds up complexity on read. Whenever we need to query a list of cars using color, we need to send a request to all the partitions, retrieve all the data and then combine it to generate the result.</p>
-</section>
-<section id="partitioning-secondary-indexes-by-term" class="level3">
-<h3 class="anchored" data-anchor-id="partitioning-secondary-indexes-by-term">Partitioning Secondary Indexes by Term</h3>
-<p><img src="{{ site.baseurl }}/images/bc9c7d2a677ff25aa74382e6efcf6e4306558973.png" title="Partitioning secondary indexes by term" class="img-fluid"></p>
-<p>In this approach, we apply the same mechanism as&nbsp;<strong>partitioning by key range or partitioning by hash of key</strong>. We create a global index covering all the data across the partitions. The global index will be partitioned by the range and stored across partitions. Now, instead of each partition maintaining a list of document IDs for the index entry <code>color:red</code>, only partition 0 maintains it. This helps to improve the performance when we need to scan a range of values using the color attribute. Yet, this approach adds up the complexity when writing, when we have multiple secondary indexes and each index partition, is placed on different partitions.</p>
-</section>
-</section>
-<section id="rebalancing-partitions" class="level2">
-<h2 class="anchored" data-anchor-id="rebalancing-partitions">Rebalancing Partitions</h2>
-<p>No matter what rebalancing schemes are used, they should meet the following requirements:</p>
-<ul>
-<li><p>After rebalancing, the load queries should be distributed evenly across nodes.</p></li>
-<li><p>While rebalancing is happening, the database should still accept reads and writes.</p></li>
-<li><p>No more data than necessary should be moved between nodes to reduce network and disk I/O loads.</p></li>
-</ul>
-<section id="rebalancing-strategies" class="level3">
-<h3 class="anchored" data-anchor-id="rebalancing-strategies">Rebalancing Strategies</h3>
-<p>Strategies to assign partitions to nodes.</p>
-<section id="hash-mod-n" class="level4">
-<h4 class="anchored" data-anchor-id="hash-mod-n">Hash Mod N</h4>
-<p>Hash the partition key and mod the value by N to decide the target node.</p>
-<p><strong>Caveat:</strong></p>
-<p>When adding new a node or reducing a failed node, most of the key will need to move to another node, which is expensive.</p>
-</section>
-<section id="fixed-number-of-partitions" class="level4">
-<h4 class="anchored" data-anchor-id="fixed-number-of-partitions">Fixed number of partitions</h4>
-<p>Define a fixed number of partitions at the beginning and distributed the partitions evenly to nodes. Whenever, the number of nodes changes, the number of partitions on each node will be changed, either increasing when removing a node or decreasing when adding a node.</p>
-<p><strong>Caveat:</strong></p>
-<p>It is hard to choose the “just right” number of partitions at the beginning.</p>
-</section>
-<section id="dynamic-number-of-partitions" class="level4">
-<h4 class="anchored" data-anchor-id="dynamic-number-of-partitions">Dynamic number of partitions</h4>
-<p>We config the min and max sizes of the partitions and use these numbers as the boundaries. Whenever the size of a partition is out of this boundary, we either split the partitions or merge them. In case of splitting, when a large dataset is split into 2 halves, one half will be sent to another node in the cluster. The advantage of this approach is that the number of partitions adapts to the total data volume.</p>
-<p><strong>Caveat:</strong></p>
-<p>The database is started with a single partition. Yet, it can be overcome by pre-splitting.</p>
-</section>
-<section id="partitioning-proportionally-to-nodes" class="level4">
-<h4 class="anchored" data-anchor-id="partitioning-proportionally-to-nodes">Partitioning proportionally to nodes</h4>
-<p>The number of partitions stays unchanged when the number of nodes remains. Yet, it increases or decreases when we add a new node or remove a failed node respectively.</p>
-</section>
-<section id="request-routing" class="level4">
-<h4 class="anchored" data-anchor-id="request-routing">Request Routing</h4>
-<p><img src="{{ site.baseurl }}/images/0f508f6930d682b8faa0a42fc4b67112ab413df8.png" title="Three different ways of routing a request to the right node" class="img-fluid"></p>
-<p>In general, there are three approaches to routing a request to the correct node. No matter what approach we choose, the key challenge is how can we update the knowledge of partitions when the partitions move from one node to another node. Many distributed database systems rely on third-party coordination services like ZooKeeper to keep track of cluster metadata.</p>
-<p><img src="{{ site.baseurl }}/images/0c28f90cd54f96892fbf0832a17ca34f07eeb0e9.png" title="Using ZooKeeper to keep track of assignment of partitions to nodes" class="img-fluid"></p>
-<p>All the nodes and their partition mappings are registered in ZooKeeper. When there is a change in the mapping, ZooKeeper will notify the routing tier so that it can keep the routing information up to date.</p>
-</section>
-</section>
-</section>
-<section id="glossary" class="level2">
-<h2 class="anchored" data-anchor-id="glossary">Glossary:</h2>
-<p><strong>Shared-nothing architecture == horizontal scaling == scaling out</strong></p>
-<p>In this architecture, each machine of the virtual machine running the database software is called a node. Each node uses its CPUs, RAM, and disks independently. Any coordination between nodes is done at the software level, using a conventional network.</p>
+<p>Things I want to do before I die. Progress as of Dec 31, 2023: 0/100.<br></p>
+<ol type="1">
+<li><span style="color:red;">✗</span> Finish UTMB</li>
+<li><span style="color:red;">✗</span> Live and work in another country</li>
+<li><span style="color:red;">✗</span> Marathon sub 3:00</li>
+<li><span style="color:red;">✗</span> Build a home</li>
+<li><span style="color:red;">✗</span> Work for Google</li>
+<li><span style="color:red;">✗</span> Become a parent</li>
+<li><span style="color:red;">✗</span> Fall in love</li>
+<li><span style="color:red;">✗</span> Body transformation</li>
+<li><span style="color:red;">✗</span> Finish Iron Man World Championship</li>
+<li><span style="color:red;">✗</span> Meet David Goggins</li>
+<li><span style="color:red;">✗</span> Publish a book</li>
+<li><span style="color:red;">✗</span> Learn to play a music instrument</li>
+<li><span style="color:red;">✗</span> Read 1000 books</li>
+</ol>
+<p><span style="color:red;">✗</span> for not complete <br> <span style="color:green;">✓</span> for complete</p>
 
 
-</section>
-</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -694,8 +568,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script>
-<script src="https://utteranc.es/client.js" repo="minhdang241/minhdang241.github.io" issue-term="pathname" theme="github-light" crossorigin="anonymous" async="">
 </script>
 </div> <!-- /content -->
 
