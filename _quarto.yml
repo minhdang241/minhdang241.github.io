@@ -8,6 +8,8 @@ website:
     foreground: "#000000"
     pinned: true
     right:
+      - text: "List 100"
+        file: list_100.qmd
       - text: "About"
         file: about.qmd
       - icon: github
