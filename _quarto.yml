@@ -4,7 +4,7 @@ project:
 website:
   title: "Minh Dang"
   navbar:
-    background: "#ff9600"
+    background: "#b8e0d2"
     foreground: "#000000"
     pinned: true
     right:
