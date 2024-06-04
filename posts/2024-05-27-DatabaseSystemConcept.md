@@ -3,7 +3,7 @@ categories:
 - BOOKS
 date: '2024-05-25'
 description: My journey of learning Database System Concept
-image: images/CPP-Language.png
+image: images/DBSC.jpg
 layout: post
 title: Database System Concept
 toc: true
