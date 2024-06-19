@@ -14,4 +14,4 @@ draft: false
 ---
 # Timeline
 - 04-06-2024: Finish tab A of Junior Sheet.
-
+- 19-06-2024: Reach 800th Leetcode problem. Time to handle DP hard problems.
