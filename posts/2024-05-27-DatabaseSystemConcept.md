@@ -90,7 +90,14 @@ RAID: Software RAID vs Hardware RAID
 
 # Chapter 13
 > Database is stored as a collection of files. Each file is a sequence of records. A record is a sequence of fields.
-
+> 
+## Page
+There are three notions of pages in DBMS:
+- Hardware page (4KB)
+- OS page (4KB)
+- DBMS page (512B-32KB)
+> A hardware page is the largest block that the disk can assure an atomic write.
+ 
 ## Fixed-length records
 Assumption:
 - Record size is fixed.
@@ -104,6 +111,9 @@ Assumption:
 Glossary:
 - File == Table, which contains multiple pages.
 - Page == smallest unit of I/O operation between the DB and disk, which contains multiple disk blocks.
+  - It can contains tuples, meta-data, indexes, log records, etc
+  - Most systems do not mix page types.
+  - Some systems require a page to be self-contained.
 - Organization vs Structure: 
     - Organization: high-level approach for arranging records.
     - Structure: internal layout of a specific page.
@@ -111,8 +121,6 @@ Glossary:
 
 ## Data dictionary
 - Store data about data
-
-
 
 
 
