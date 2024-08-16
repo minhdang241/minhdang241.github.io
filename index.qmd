@@ -9,7 +9,7 @@ listing:
   date-format: short
   categories: true
   sort-ui: true
-  fields: [date, title, reading-time]
+  fields: [date, title, description]
   filter-ui: true
 page-layout: full
 title-block-banner: false
