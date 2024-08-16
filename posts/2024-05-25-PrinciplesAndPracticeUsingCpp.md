@@ -7,7 +7,7 @@ image: images/CPP-Language.png
 layout: post
 title: Principles And Practice Using C++ Journey
 toc: true
-draft: false
+draft: true
 
 ---
 GitHub Repo: <a href="https://github.com/minhdang241/learning_cplusplus">https://github.com/minhdang241/learning_cplusplus</a>

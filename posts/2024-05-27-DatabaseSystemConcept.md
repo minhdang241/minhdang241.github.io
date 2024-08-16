@@ -7,7 +7,7 @@ image: images/DBSC.jpg
 layout: post
 title: Database System Concept
 toc: true
-draft: false
+draft: true
 
 ---
 
@@ -93,11 +93,10 @@ RAID: Software RAID vs Hardware RAID
 > 
 ## Page
 There are three notions of pages in DBMS:
-- Hardware page (4KB)
+- Hardware page (4KB): is the largest block that the disk can assure an atomic write.
 - OS page (4KB)
-- DBMS page (512B-32KB)
-> A hardware page is the largest block that the disk can assure an atomic write.
- 
+- DBMS page (512B-32KB): is the smallest unit of data storage and transfer between disk and memory.
+
 ## Fixed-length records
 Assumption:
 - Record size is fixed.
@@ -118,9 +117,6 @@ Glossary:
     - Organization: high-level approach for arranging records.
     - Structure: internal layout of a specific page.
 > Slotted Page Structure is a Data Structure that is used to manage records in a single file.
-
-## Data dictionary
-- Store data about data
 
 
 

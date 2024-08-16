@@ -1,12 +1,15 @@
 ---
 title: "Blogs"
 listing:
+  type: table
+  table-hover: true
+  max-items: 20
   contents: posts
   sort: "date desc"
-  type: default
+  date-format: short
   categories: true
   sort-ui: true
-  fields: [image, date, title, author, reading-time, description]
+  fields: [date, title, reading-time]
   filter-ui: true
 page-layout: full
 title-block-banner: false

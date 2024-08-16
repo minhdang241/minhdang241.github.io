@@ -9,7 +9,7 @@ image: images/red_coder.jpg
 layout: post
 title: Road To Red
 toc: true
-draft: false
+draft: true
 
 ---
 # Timeline

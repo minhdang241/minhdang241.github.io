@@ -4,8 +4,8 @@ project:
 website:
   title: "Minh Dang"
   navbar:
-    background: "#b8e0d2"
-    foreground: "#000000"
+    background: "#39729E"
+    foreground: "#dee2e6"
     pinned: true
     right:
       - text: "List 100"
@@ -23,3 +23,6 @@ format:
   html:
     theme: cosmo
     css: styles.css
+    # grid:
+      # body-width: 1300px
+      
