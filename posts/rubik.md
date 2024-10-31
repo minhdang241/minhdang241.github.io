@@ -9,7 +9,7 @@ image: images/red_coder.jpg
 layout: post
 title: Rubik Solving
 toc: true
-draft: true
+draft: false
 
 ---
 3x3:
