@@ -2,14 +2,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.553">
+<meta name="generator" content="quarto-1.6.32">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="dcterms.date" content="2021-06-26">
 <meta name="description" content="Attention-based LSTM for Aspect-level Sentiment Classification">
 
-<title>Minh Dang - Attention based LSTM for Aspect level Sentiment Classification</title>
+<title>Attention based LSTM for Aspect level Sentiment Classification – Minh Dang</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -35,7 +35,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
   { counter-reset: source-line 0; }
@@ -70,10 +70,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-2486e1f0a3ee9ee1fc393803a1361cdb.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="../site_libs/bootstrap/bootstrap-3a654f9e0145f0dc5777f8891b18edfb.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "navbar",
   "copy-button": false,
@@ -122,7 +122,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </a>
   </div>
             <div id="quarto-search" class="" title="Search"></div>
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
   <span class="navbar-toggler-icon"></span>
 </button>
           <div class="collapse navbar-collapse" id="navbarCollapse">
@@ -147,7 +147,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </li>  
 </ul>
           </div> <!-- /navcollapse -->
-          <div class="quarto-navbar-tools">
+            <div class="quarto-navbar-tools">
 </div>
       </div> <!-- /container-fluid -->
     </nav>
@@ -842,13 +842,15 @@ LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
 1.1 M     Trainable params
 1.3 M     Non-trainable params
 2.4 M     Total params
-9.708     Total estimated model params size (MB)
-Global seed set to 2401</code></pre>
+9.708     Total estimated model params size (MB)</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
 {"model_id":"ce535f1894a140dd8931f9007fdbce5f","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Global seed set to 2401</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code></code></pre>
@@ -1008,9 +1010,12 @@ Global seed set to 2401</code></pre>
 {"model_id":"f996e8ec3d5f48a7a9c8b3aa02b7a496","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
+<div class="cell-output cell-output-stdout">
+<pre><code></code></pre>
+</div>
 </div>
 <div id="cell-25" class="cell" data-outputid="6be1952c-bd2d-4257-90b6-78e26840c52c" data-execution_count="27">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>trainer.test(ckpt_path<span class="op">=</span>checkpoint_callback.best_model_path)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>trainer.test(ckpt_path<span class="op">=</span>checkpoint_callback.best_model_path)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]</code></pre>
 </div>
@@ -1034,26 +1039,26 @@ DATALOADER:0 TEST RESULTS
 <section id="atae-lstm-1" class="level2">
 <h2 class="anchored" data-anchor-id="atae-lstm-1">ATAE-LSTM</h2>
 <div id="cell-27" class="cell" data-outputid="802bf8cd-145e-4e7a-803f-e69ff7f1283b" data-execution_count="23">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>checkpoint_callback <span class="op">=</span> ModelCheckpoint(</span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    monitor<span class="op">=</span><span class="st">'val_acc'</span>, <span class="co"># save the model with the best validation accuracy</span></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    dirpath<span class="op">=</span><span class="st">'checkpoints'</span>,</span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>    mode<span class="op">=</span><span class="st">'max'</span>,</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>tb_logger <span class="op">=</span> pl_loggers.TensorBoardLogger(<span class="st">'logs/'</span>) <span class="co"># create logger for tensorboard</span></span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Set hyper-parameters</span></span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>lr <span class="op">=</span> <span class="fl">1e-3</span> </span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>hidden_size <span class="op">=</span> <span class="dv">300</span></span>
-<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>aspect_embedding_dim <span class="op">=</span> <span class="dv">300</span></span>
-<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>num_epochs <span class="op">=</span> <span class="dv">30</span></span>
-<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>l2reg <span class="op">=</span> <span class="fl">0.0</span> </span>
-<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>trainer <span class="op">=</span> pl.Trainer(gpus<span class="op">=</span><span class="dv">1</span>, max_epochs<span class="op">=</span>num_epochs, logger<span class="op">=</span>tb_logger, callbacks<span class="op">=</span>[checkpoint_callback], deterministic<span class="op">=</span><span class="va">True</span>)</span>
-<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a><span class="co"># trainer = pl.Trainer(fast_dev_run=True) #Debug </span></span>
-<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a><span class="co"># trainer = pl.Trainer(overfit_batches=0.025, max_epochs=num_epochs) #Debug</span></span>
-<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> ATAE_LSTM(embedding_matrix, hidden_size, aspect_embedding_dim, lr<span class="op">=</span>lr, l2reg<span class="op">=</span>l2reg)</span>
-<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a>trainer.fit(model, datamodule)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>checkpoint_callback <span class="op">=</span> ModelCheckpoint(</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>    monitor<span class="op">=</span><span class="st">'val_acc'</span>, <span class="co"># save the model with the best validation accuracy</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>    dirpath<span class="op">=</span><span class="st">'checkpoints'</span>,</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>    mode<span class="op">=</span><span class="st">'max'</span>,</span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>tb_logger <span class="op">=</span> pl_loggers.TensorBoardLogger(<span class="st">'logs/'</span>) <span class="co"># create logger for tensorboard</span></span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Set hyper-parameters</span></span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>lr <span class="op">=</span> <span class="fl">1e-3</span> </span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>hidden_size <span class="op">=</span> <span class="dv">300</span></span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>aspect_embedding_dim <span class="op">=</span> <span class="dv">300</span></span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>num_epochs <span class="op">=</span> <span class="dv">30</span></span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>l2reg <span class="op">=</span> <span class="fl">0.0</span> </span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a>trainer <span class="op">=</span> pl.Trainer(gpus<span class="op">=</span><span class="dv">1</span>, max_epochs<span class="op">=</span>num_epochs, logger<span class="op">=</span>tb_logger, callbacks<span class="op">=</span>[checkpoint_callback], deterministic<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a><span class="co"># trainer = pl.Trainer(fast_dev_run=True) #Debug </span></span>
+<span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a><span class="co"># trainer = pl.Trainer(overfit_batches=0.025, max_epochs=num_epochs) #Debug</span></span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a>model <span class="op">=</span> ATAE_LSTM(embedding_matrix, hidden_size, aspect_embedding_dim, lr<span class="op">=</span>lr, l2reg<span class="op">=</span>l2reg)</span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a>trainer.fit(model, datamodule)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>GPU available: True, used: True
 TPU available: False, using: 0 TPU cores
@@ -1079,13 +1084,15 @@ LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]
 1.4 M     Trainable params
 1.3 M     Non-trainable params
 2.8 M     Total params
-11.148    Total estimated model params size (MB)
-Global seed set to 2401</code></pre>
+11.148    Total estimated model params size (MB)</code></pre>
 </div>
 <div class="cell-output cell-output-display">
 <script type="application/vnd.jupyter.widget-view+json">
 {"model_id":"053c02bb46c2485aacb4b1f662e689e3","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Global seed set to 2401</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code></code></pre>
@@ -1245,9 +1252,12 @@ Global seed set to 2401</code></pre>
 {"model_id":"16011524be244f9290b8e79f135833e7","version_major":2,"version_minor":0,"quarto_mimetype":"application/vnd.jupyter.widget-view+json"}
 </script>
 </div>
+<div class="cell-output cell-output-stdout">
+<pre><code></code></pre>
+</div>
 </div>
 <div id="cell-28" class="cell" data-outputid="43c52537-9dfe-45c3-ce8f-b2380a460c17" data-execution_count="24">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>trainer.test(ckpt_path<span class="op">=</span>checkpoint_callback.best_model_path)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>trainer.test(ckpt_path<span class="op">=</span>checkpoint_callback.best_model_path)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>LOCAL_RANK: 0 - CUDA_VISIBLE_DEVICES: [0]</code></pre>
 </div>
@@ -1273,7 +1283,7 @@ DATALOADER:0 TEST RESULTS
 <h1>Discussion</h1>
 <p>Since I could not find out the exact dataset used in the paper, it is impossible to compare with the paper’s result. Instead, I will compare my implementation with other implementations from Github.</p>
 <p>Our result</p>
-<table class="table">
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th>Model</th>
@@ -1338,18 +1348,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
     return false;
   }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
+  const onCopySuccess = function(e) {
     // button target
     const button = e.trigger;
     // don't keep focus
@@ -1381,7 +1380,29 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }, 1000);
     // clear code selection
     e.clearSelection();
+  }
+  const getTextToCopy = function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+    text: getTextToCopy
   });
+  clipboard.on('success', onCopySuccess);
+  if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+    // For code content inside modals, clipBoardJS needs to be initialized with a container option
+    // TODO: Check when it could be a function (https://github.com/zenorocha/clipboard.js/issues/860)
+    const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+      text: getTextToCopy,
+      container: window.document.getElementById('quarto-embedded-source-code-modal')
+    });
+    clipboardModal.on('success', onCopySuccess);
+  }
     var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
     var mailtoRegex = new RegExp(/^mailto:/);
       var filterRegex = new RegExp("https:\/\/minhdang241\.github\.io\/");
@@ -1389,7 +1410,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
     }
     // Inspect non-navigation links and adorn them if external
- 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
     for (var i=0; i<links.length; i++) {
       const link = links[i];
       if (!isInternal(link.href)) {
