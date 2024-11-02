@@ -17,72 +17,68 @@
     <lastmod>2024-10-31T07:59:54.954Z</lastmod>
   </url>
   <url>
-    <loc>https://minhdang241.github.io/posts/2021-08-18-nlp_11_extract_aspects_from_sentence_using_denpendency_parsing_and_pos_tags.html</loc>
-    <lastmod>2024-08-16T11:27:47.600Z</lastmod>
-  </url>
-  <url>
-    <loc>https://minhdang241.github.io/posts/2021-06-21-nlp_3_phobert_sentiment_analysis.html</loc>
-    <lastmod>2024-04-28T06:41:34.681Z</lastmod>
-  </url>
-  <url>
-    <loc>https://minhdang241.github.io/posts/2021-07-28-nlp_8_text_preprocessing_and_labelling_[part_2].html</loc>
-    <lastmod>2024-04-28T06:41:34.685Z</lastmod>
-  </url>
-  <url>
-    <loc>https://minhdang241.github.io/posts/2023-03-12-DesignMachineLearningSystem.html</loc>
-    <lastmod>2024-04-28T06:41:34.687Z</lastmod>
-  </url>
-  <url>
-    <loc>https://minhdang241.github.io/posts/2021-06-20-nlp_2_effective_lstms_for_target_dependent_sentiment_classification [part 2].html</loc>
-    <lastmod>2024-04-28T06:41:34.680Z</lastmod>
-  </url>
-  <url>
-    <loc>https://minhdang241.github.io/posts/2021-06-18-nlp_1_effective_lstms_for_target_dependent_sentiment_classification [part 1].html</loc>
-    <lastmod>2024-04-28T06:41:34.677Z</lastmod>
-  </url>
-  <url>
-    <loc>https://minhdang241.github.io/posts/2021-07-27-nlp_7_text_preprocessing_and_labelling_[part_1].html</loc>
-    <lastmod>2024-04-28T06:41:34.685Z</lastmod>
-  </url>
-  <url>
-    <loc>https://minhdang241.github.io/posts/2024-05-27-DatabaseSystemConcept.html</loc>
-    <lastmod>2024-08-16T11:29:23.314Z</lastmod>
-  </url>
-  <url>
-    <loc>https://minhdang241.github.io/posts/2024-07-12-ComputerMemory.html</loc>
-    <lastmod>2024-07-12T03:32:33.204Z</lastmod>
-  </url>
-  <url>
-    <loc>https://minhdang241.github.io/posts/2023-01-29-DDIA-C6-Partitioning.html</loc>
-    <lastmod>2024-04-28T06:41:34.687Z</lastmod>
-  </url>
-  <url>
-    <loc>https://minhdang241.github.io/posts/2021-07-04-nlp_5_interactive_attention_networks_for_aspect_level_sentiment_classififcation.html</loc>
-    <lastmod>2024-04-28T06:41:34.684Z</lastmod>
-  </url>
-  <url>
-    <loc>https://minhdang241.github.io/posts/2024-06-04-RoadToRED.html</loc>
-    <lastmod>2024-08-16T11:29:27.789Z</lastmod>
-  </url>
-  <url>
-    <loc>https://minhdang241.github.io/posts/2021-08-15-nlp_9_content_based_recommendation_system_for_movies_[baby_version].html</loc>
-    <lastmod>2024-04-28T06:41:34.685Z</lastmod>
-  </url>
-  <url>
-    <loc>https://minhdang241.github.io/posts/2021-08-30-nlp_12_job_recommendation_for_cs_it.html</loc>
-    <lastmod>2024-04-28T06:41:34.686Z</lastmod>
+    <loc>https://minhdang241.github.io/posts/2021-06-26-nlp_4_attention_based_lstm_for_aspect_level_sentiment_classification.html</loc>
+    <lastmod>2024-04-28T06:41:34.683Z</lastmod>
   </url>
   <url>
     <loc>https://minhdang241.github.io/posts/2024-05-25-PrinciplesAndPracticeUsingCpp.html</loc>
     <lastmod>2024-08-16T11:29:37.649Z</lastmod>
   </url>
   <url>
-    <loc>https://minhdang241.github.io/posts/2021-06-26-nlp_4_attention_based_lstm_for_aspect_level_sentiment_classification.html</loc>
-    <lastmod>2024-04-28T06:41:34.683Z</lastmod>
+    <loc>https://minhdang241.github.io/posts/2021-08-30-nlp_12_job_recommendation_for_cs_it.html</loc>
+    <lastmod>2024-04-28T06:41:34.686Z</lastmod>
   </url>
   <url>
-    <loc>https://minhdang241.github.io/posts/2024-09-16-Python_DeepDive_Iterator_Generator.html</loc>
-    <lastmod>2024-09-16T08:58:05.230Z</lastmod>
+    <loc>https://minhdang241.github.io/posts/2021-08-15-nlp_9_content_based_recommendation_system_for_movies_[baby_version].html</loc>
+    <lastmod>2024-04-28T06:41:34.685Z</lastmod>
+  </url>
+  <url>
+    <loc>https://minhdang241.github.io/posts/2024-06-04-RoadToRED.html</loc>
+    <lastmod>2024-08-16T11:29:27.789Z</lastmod>
+  </url>
+  <url>
+    <loc>https://minhdang241.github.io/posts/2021-07-04-nlp_5_interactive_attention_networks_for_aspect_level_sentiment_classififcation.html</loc>
+    <lastmod>2024-04-28T06:41:34.684Z</lastmod>
+  </url>
+  <url>
+    <loc>https://minhdang241.github.io/posts/2023-01-29-DDIA-C6-Partitioning.html</loc>
+    <lastmod>2024-04-28T06:41:34.687Z</lastmod>
+  </url>
+  <url>
+    <loc>https://minhdang241.github.io/posts/2024-07-12-ComputerMemory.html</loc>
+    <lastmod>2024-07-12T03:32:33.204Z</lastmod>
+  </url>
+  <url>
+    <loc>https://minhdang241.github.io/posts/2024-05-27-DatabaseSystemConcept.html</loc>
+    <lastmod>2024-08-16T11:29:23.314Z</lastmod>
+  </url>
+  <url>
+    <loc>https://minhdang241.github.io/posts/2021-07-27-nlp_7_text_preprocessing_and_labelling_[part_1].html</loc>
+    <lastmod>2024-04-28T06:41:34.685Z</lastmod>
+  </url>
+  <url>
+    <loc>https://minhdang241.github.io/posts/2021-06-18-nlp_1_effective_lstms_for_target_dependent_sentiment_classification [part 1].html</loc>
+    <lastmod>2024-04-28T06:41:34.677Z</lastmod>
+  </url>
+  <url>
+    <loc>https://minhdang241.github.io/posts/2021-06-20-nlp_2_effective_lstms_for_target_dependent_sentiment_classification [part 2].html</loc>
+    <lastmod>2024-04-28T06:41:34.680Z</lastmod>
+  </url>
+  <url>
+    <loc>https://minhdang241.github.io/posts/2023-03-12-DesignMachineLearningSystem.html</loc>
+    <lastmod>2024-04-28T06:41:34.687Z</lastmod>
+  </url>
+  <url>
+    <loc>https://minhdang241.github.io/posts/2021-07-28-nlp_8_text_preprocessing_and_labelling_[part_2].html</loc>
+    <lastmod>2024-04-28T06:41:34.685Z</lastmod>
+  </url>
+  <url>
+    <loc>https://minhdang241.github.io/posts/2021-06-21-nlp_3_phobert_sentiment_analysis.html</loc>
+    <lastmod>2024-04-28T06:41:34.681Z</lastmod>
+  </url>
+  <url>
+    <loc>https://minhdang241.github.io/posts/2021-08-18-nlp_11_extract_aspects_from_sentence_using_denpendency_parsing_and_pos_tags.html</loc>
+    <lastmod>2024-08-16T11:27:47.600Z</lastmod>
   </url>
   <url>
     <loc>https://minhdang241.github.io/posts/2021-08-17-nlp_10_aivivn_product_review_sentiment_analysis.html</loc>
