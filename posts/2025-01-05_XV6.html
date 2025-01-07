@@ -162,6 +162,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#general-knowledge" id="toc-general-knowledge" class="nav-link" data-scroll-target="#general-knowledge">General knowledge:</a></li>
   <li><a href="#solution" id="toc-solution" class="nav-link" data-scroll-target="#solution">Solution:</a></li>
   </ul></li>
+  <li><a href="#speed-up-system-calls" id="toc-speed-up-system-calls" class="nav-link" data-scroll-target="#speed-up-system-calls">Speed up system calls</a>
+  <ul class="collapse">
+  <li><a href="#general-knowledge-1" id="toc-general-knowledge-1" class="nav-link" data-scroll-target="#general-knowledge-1">General knowledge:</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -206,7 +210,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="general-knowledge" class="level3">
 <h3 class="anchored" data-anchor-id="general-knowledge">General knowledge:</h3>
 <blockquote class="blockquote">
-<p>xv6 is running on Sv39 RISC-V therefore only the bottom <strong>39 bits</strong> of 64-bit virtual address are used; the top 25 bits are not used. Within 39 bits, there are <strong>27 bits</strong> are used for Page Table Entry (PTE) index; the other <strong>12 bits</strong> are used for the offset.</p>
+<p>Since xv6 is running on Sv39 RISC-V, only the bottom <strong>39 bits</strong> of 64-bit virtual address are used; the top 25 bits are not used. Within 39 bits, there are <strong>27 bits</strong> are used for Page Table Entry (PTE) index; the other <strong>12 bits</strong> are used for the offset.</p>
 </blockquote>
 <blockquote class="blockquote">
 <p>Each PTE contains a 44-bit physical page number (PPN) and 10-bit flags.</p>
@@ -413,6 +417,28 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </tr>
 </tbody>
 </table>
+</section>
+</section>
+<section id="speed-up-system-calls" class="level2">
+<h2 class="anchored" data-anchor-id="speed-up-system-calls">Speed up system calls</h2>
+<section id="general-knowledge-1" class="level3">
+<h3 class="anchored" data-anchor-id="general-knowledge-1">General knowledge:</h3>
+<blockquote class="blockquote">
+<p>System calls usually require a context switch from user mode to kernel mode, which is expensive. To speed up the certain system calls, we use a technique called <strong>virtual dynamic shared object</strong> (vDSO). vDSO is a kernel mechanism for exporting a carefully <strong>selected set of kernel space routines</strong> to user space applications so that applications can call these kernel space routines in-process, without incurring the performance penalty of a mode switch from user mode to kernel mode that is inherent when calling these same kernel space routines by means of the system call interface.</p>
+</blockquote>
+<blockquote class="blockquote">
+<p>Instructions that dereference addresses use only <strong>virtual addresses</strong>, which the paging hardware translates to physical addresses, and then sends to RAM hardware to read or write storage.</p>
+</blockquote>
+<blockquote class="blockquote">
+<p>Kernel uses <strong>physical addresses</strong> when managing memory, e.g., allocating pages.</p>
+</blockquote>
+<p><strong>Notes:</strong> the definition of <code>ugetpid()</code> is defined in the <code>user/ulib.c</code> file as follows:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>ugetpid<span class="op">(</span><span class="dt">void</span><span class="op">)</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">struct</span> usyscall <span class="op">*</span>u <span class="op">=</span> <span class="op">(</span><span class="kw">struct</span> usyscall <span class="op">*)</span>USYSCALL<span class="op">;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> u<span class="op">-&gt;</span>pid<span class="op">;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 
 </section>
