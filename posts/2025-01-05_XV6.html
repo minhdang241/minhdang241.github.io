@@ -165,6 +165,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#speed-up-system-calls" id="toc-speed-up-system-calls" class="nav-link" data-scroll-target="#speed-up-system-calls">Speed up system calls</a>
   <ul class="collapse">
   <li><a href="#general-knowledge-1" id="toc-general-knowledge-1" class="nav-link" data-scroll-target="#general-knowledge-1">General knowledge:</a></li>
+  <li><a href="#solution-1" id="toc-solution-1" class="nav-link" data-scroll-target="#solution-1">Solution:</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -426,19 +427,63 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <blockquote class="blockquote">
 <p>System calls usually require a context switch from user mode to kernel mode, which is expensive. To speed up the certain system calls, we use a technique called <strong>virtual dynamic shared object</strong> (vDSO). vDSO is a kernel mechanism for exporting a carefully <strong>selected set of kernel space routines</strong> to user space applications so that applications can call these kernel space routines in-process, without incurring the performance penalty of a mode switch from user mode to kernel mode that is inherent when calling these same kernel space routines by means of the system call interface.</p>
 </blockquote>
-<blockquote class="blockquote">
-<p>Instructions that dereference addresses use only <strong>virtual addresses</strong>, which the paging hardware translates to physical addresses, and then sends to RAM hardware to read or write storage.</p>
-</blockquote>
-<blockquote class="blockquote">
-<p>Kernel uses <strong>physical addresses</strong> when managing memory, e.g., allocating pages.</p>
-</blockquote>
-<p><strong>Notes:</strong> the definition of <code>ugetpid()</code> is defined in the <code>user/ulib.c</code> file as follows:</p>
+<p>Besides, we should also understand how xv6 <strong>allocates pages</strong> to the process and how the <strong>virtual memory mapping to the physical memory.</strong></p>
+<p><strong>TBU:</strong> explain those concepts.</p>
+</section>
+<section id="solution-1" class="level3">
+<h3 class="anchored" data-anchor-id="solution-1">Solution:</h3>
+<ul>
+<li><code>ugetpid()</code> is declared in the file <code>user/user.h</code>, thus any user program can call it.</li>
+<li>Also, the definition of <code>ugetpid()</code> is defined in the <code>user/ulib.c</code> file as follows:</li>
+</ul>
 <div class="sourceCode" id="cb3"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>ugetpid<span class="op">(</span><span class="dt">void</span><span class="op">)</span></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">struct</span> usyscall <span class="op">*</span>u <span class="op">=</span> <span class="op">(</span><span class="kw">struct</span> usyscall <span class="op">*)</span>USYSCALL<span class="op">;</span></span>
 <span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> u<span class="op">-&gt;</span>pid<span class="op">;</span></span>
 <span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>From the definition, we can see that the <code>pid</code> is stored in the <code>usyscall</code> structure, which is defined in <code>kernel/memlayout.h</code> as follows:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> usyscall <span class="op">{</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> pid<span class="op">;</span>  <span class="co">// Process ID</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="op">};</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The problem description suggests that: &gt; When each process is created, map one read-only page at USYSCALL. At the start of this page, store a struct usyscall</p>
+<p>The <code>USYSCALL</code> is defined in the <code>kernel/memlayout.h</code> as follows:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="pp">#define USYSCALL </span><span class="op">(</span><span class="pp">TRAPFRAME </span><span class="op">-</span><span class="pp"> PGSIZE</span><span class="op">)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>That means the <code>struct usyscall</code> is stored in the page right after the <code>TRAPFRAME</code> page.</p>
+<p>To do that, we have to deep into the function where the memory is allocated for the process. In this case, it is the <code>alloproc</code> function defined in <code>kernel/proc.c</code>.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="kw">struct</span> proc<span class="op">*</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>allocproc<span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  <span class="op">...</span></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The <code>allocproc</code> uses the function <code>kalloc</code> to allocate 4096-byte page in physical memory to process’s component. For example, this is the line where a single page in physical memory is allocated for the process’s trapframe.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>p<span class="op">-&gt;</span>trapframe <span class="op">=</span> <span class="op">(</span><span class="kw">struct</span> trapframe <span class="op">*)</span>kalloc<span class="op">()</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>After this line, the <code>p-&gt;trapframe</code> contains the memory of the page a.k.a. It plays as a pointer to the page in physical memory.</p>
+<p>Thus, to allocate a page for the <code>struct usyscall</code>, we can use the following code:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span><span class="op">((</span>p<span class="op">-&gt;</span>usyscall <span class="op">=</span> <span class="op">(</span><span class="kw">struct</span> usyscall <span class="op">*)</span>kalloc<span class="op">())</span> <span class="op">==</span> <span class="dv">0</span><span class="op">){</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  freeproc<span class="op">(</span>p<span class="op">)</span> <span class="op">;</span></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>  release<span class="op">(&amp;</span>p<span class="op">-&gt;</span>lock<span class="op">);</span></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>We also assign the process ID to the <code>usyscall</code> structure as follows:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>p<span class="op">-&gt;</span>usyscall<span class="op">-&gt;</span>pid <span class="op">=</span> p<span class="op">-&gt;</span>pid<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Then we map the physical address to virtual address of the process via the function <code>proc_pagetable</code> defined in the file <code>kernel/proc.c</code>.</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a> <span class="cf">if</span><span class="op">(</span>mappages<span class="op">(</span>pagetable<span class="op">,</span> USYSCALL<span class="op">,</span> PGSIZE<span class="op">,</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>              <span class="op">(</span>uint64<span class="op">)(</span>p<span class="op">-&gt;</span>usyscall<span class="op">),</span> PTE_R <span class="op">|</span> PTE_U<span class="op">)</span> <span class="op">&lt;</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>      uvmunmap<span class="op">(</span>pagetable<span class="op">,</span> TRAMPOLINE<span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a>      uvmunmap<span class="op">(</span>pagetable<span class="op">,</span> TRAPFRAME<span class="op">,</span> <span class="dv">1</span><span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>      uvmfree<span class="op">(</span>pagetable<span class="op">,</span> <span class="dv">0</span><span class="op">);</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>      <span class="cf">return</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The function <code>mappages</code> is used to create a pagetable entry for the given physical address.</p>
+<p>After the mapping is successful, the system can use the pagetable to convert the virtual address into physical address. That it’s. The rest of the code is to clean up the memory when freeing the process, which is defined in the <code>freeproc</code> function.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="dt">void</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>freeproc<span class="op">(</span><span class="kw">struct</span> proc <span class="op">*</span>p<span class="op">)</span></span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="op">...</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span><span class="op">(</span>p<span class="op">-&gt;</span>usyscall<span class="op">)</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    kfree<span class="op">((</span><span class="dt">void</span><span class="op">*)</span>p<span class="op">-&gt;</span>usyscall<span class="op">);</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="op">...</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 
 </section>
