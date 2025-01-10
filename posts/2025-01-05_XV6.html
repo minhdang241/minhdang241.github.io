@@ -167,6 +167,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#general-knowledge-1" id="toc-general-knowledge-1" class="nav-link" data-scroll-target="#general-knowledge-1">General knowledge:</a></li>
   <li><a href="#solution-1" id="toc-solution-1" class="nav-link" data-scroll-target="#solution-1">Solution:</a></li>
   </ul></li>
+  <li><a href="#print-a-page-table" id="toc-print-a-page-table" class="nav-link" data-scroll-target="#print-a-page-table">Print a page table</a>
+  <ul class="collapse">
+  <li><a href="#general-knowledge-2" id="toc-general-knowledge-2" class="nav-link" data-scroll-target="#general-knowledge-2">General knowledge:</a></li>
+  <li><a href="#solution-2" id="toc-solution-2" class="nav-link" data-scroll-target="#solution-2">Solution:</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -484,6 +489,53 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>    kfree<span class="op">((</span><span class="dt">void</span><span class="op">*)</span>p<span class="op">-&gt;</span>usyscall<span class="op">);</span></span>
 <span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="op">...</span></span>
 <span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+<section id="print-a-page-table" class="level2">
+<h2 class="anchored" data-anchor-id="print-a-page-table">Print a page table</h2>
+<section id="general-knowledge-2" class="level3">
+<h3 class="anchored" data-anchor-id="general-knowledge-2">General knowledge:</h3>
+<blockquote class="blockquote">
+<p>Xv6 uses a three-level pagetable. For each level, there are 2^9 (512) entries. The first and second level entries contain the physical addresses for page-table pages in the lower level, while the lowest level entries contain the physical page number (PPN).</p>
+</blockquote>
+<blockquote class="blockquote">
+<p>The pagetable entries are stored sequentially in the memory as follows:</p>
+</blockquote>
+<pre><code>| Level2_Entry0 | Level1_Entry0 | Level0_Entry0 | ... | Level2_Entry1 | Level1_Entry0 | Level0_Entry0 | ...    </code></pre>
+<p>Thus, the gap between 2 PTE varies by level: - Level 2 entries: 512 * 512 * PGSIZE - Level 1 entries: 512 * PGSIZE - Level 0 entries: PGSIZE</p>
+<blockquote class="blockquote">
+<p>The virtual address of the first pagetable entry is 0, which is set in the <code>uvmfirst</code> function.</p>
+</blockquote>
+<div class="sourceCode" id="cb13"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>uvmfirst<span class="op">(</span>pagetable_t pagetable<span class="op">,</span> uchar <span class="op">*</span>src<span class="op">,</span> uint sz<span class="op">)</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">char</span> <span class="op">*</span>mem<span class="op">;</span></span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span><span class="op">(</span>sz <span class="op">&gt;=</span> PGSIZE<span class="op">)</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>    panic<span class="op">(</span><span class="st">"uvmfirst: more than a page"</span><span class="op">);</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  mem <span class="op">=</span> kalloc<span class="op">();</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  memset<span class="op">(</span>mem<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> PGSIZE<span class="op">);</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  mappages<span class="op">(</span>pagetable<span class="op">,</span> <span class="dv">0</span><span class="op">,</span> PGSIZE<span class="op">,</span> <span class="op">(</span>uint64<span class="op">)</span>mem<span class="op">,</span> PTE_W<span class="op">|</span>PTE_R<span class="op">|</span>PTE_X<span class="op">|</span>PTE_U<span class="op">);</span></span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a>  memmove<span class="op">(</span>mem<span class="op">,</span> src<span class="op">,</span> sz<span class="op">);</span></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="solution-2" class="level3">
+<h3 class="anchored" data-anchor-id="solution-2">Solution:</h3>
+<div class="sourceCode" id="cb14"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>vmprint_helper<span class="op">(</span>pagetable_t pagetable<span class="op">,</span> uint64 level<span class="op">,</span> uint64 va<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  uint64 sz <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span> <span class="op">(</span>level <span class="op">==</span> <span class="dv">2</span><span class="op">)</span> sz <span class="op">=</span> <span class="dv">512</span> <span class="op">*</span> <span class="dv">512</span> <span class="op">*</span> PGSIZE<span class="op">;</span> </span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span> <span class="cf">if</span> <span class="op">(</span>level <span class="op">==</span> <span class="dv">1</span><span class="op">)</span> sz <span class="op">=</span> <span class="dv">512</span> <span class="op">*</span> PGSIZE<span class="op">;</span></span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span> sz <span class="op">=</span> PGSIZE<span class="op">;</span></span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> <span class="dv">512</span><span class="op">;</span> i<span class="op">++,</span> va <span class="op">+=</span> sz<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>    pte_t pte <span class="op">=</span> <span class="op">*(</span>pagetable <span class="op">+</span> i<span class="op">);</span> <span class="co">// Dereference the pagetable pointer to get the pagetable entry content</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">((</span>pte <span class="op">&amp;</span> PTE_V<span class="op">)</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="cf">continue</span><span class="op">;</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> j <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> j <span class="op">&lt;</span> <span class="dv">3</span> <span class="op">-</span> level<span class="op">;</span> <span class="op">++</span>j<span class="op">)</span> printf<span class="op">(</span><span class="st">" .."</span><span class="op">);</span></span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">"</span><span class="sc">%p</span><span class="st">: pte </span><span class="sc">%p</span><span class="st"> pa </span><span class="sc">%p\n</span><span class="st">"</span><span class="op">,</span> <span class="op">(</span><span class="dt">void</span> <span class="op">*)</span> va<span class="op">,</span> <span class="op">(</span><span class="dt">void</span> <span class="op">*)</span> pte<span class="op">,</span> <span class="op">(</span><span class="dt">void</span> <span class="op">*)</span> PTE2PA<span class="op">(</span>pte<span class="op">));</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>PTE_LEAF<span class="op">(</span>pte<span class="op">)</span> <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="co">// if it is not the leave</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>        vmprint_helper<span class="op">((</span><span class="dt">void</span> <span class="op">*)</span> PTE2PA<span class="op">(</span>pte<span class="op">),</span> level <span class="op">-</span> <span class="dv">1</span><span class="op">,</span> va<span class="op">);</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 
 </section>
