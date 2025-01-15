@@ -6,8 +6,10 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="dcterms.date" content="2025-01-14">
+<meta name="description" content="Answer for lab3 2024">
 
-<title>quarto-inputb349cd11f92a8695 – Minh Dang</title>
+<title>XV6 Series: MIT Lab4 2024 – Minh Dang</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -19,6 +21,40 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -70,7 +106,7 @@ ul.task-list li input[type="checkbox"] {
 <link rel="stylesheet" href="../styles.css">
 </head>
 
-<body class="nav-fixed fullcontent">
+<body class="nav-fixed">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -116,30 +152,122 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#risc-v-assembly" id="toc-risc-v-assembly" class="nav-link active" data-scroll-target="#risc-v-assembly">RISC-V assembly</a></li>
+  </ul>
+</nav>
+    </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">XV6 Series: MIT Lab4 2024</h1>
+  <div class="quarto-categories">
+    <div class="quarto-category">Write-ups</div>
+  </div>
+  </div>
+
+<div>
+  <div class="description">
+    Answer for lab3 2024
+  </div>
+</div>
 
 
+<div class="quarto-title-meta">
 
-<section id="socket" class="level1">
-<h1>Socket</h1>
-<ul>
-<li>There are other <code>sockets</code> besides the <code>Internet socket</code> e.g <code>UNIX domain socket</code>.</li>
-<li>There are two main types of <code>Internet socket</code>
-<ul>
-<li>Stream sockets: <code>SOCK_STREAM</code>
-<ul>
-<li>Use TCP:
-<ul>
-<li>Make sure that the data is delivered in the order it was sent and error-free.</li>
-</ul></li>
-</ul></li>
-<li>Datagram sockets: <code>SOCK_DGRAM</code> There are</li>
-</ul></li>
-</ul>
-<p>OSI describes a system of network functionality</p>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">January 14, 2025</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="risc-v-assembly" class="level2">
+<h2 class="anchored" data-anchor-id="risc-v-assembly">RISC-V assembly</h2>
+<blockquote class="blockquote">
+<ol type="1">
+<li>Which registers contain arguments to functions? For example, which register holds 13 in main’s call to printf?</li>
+</ol>
+</blockquote>
+<p>In RISC, a0-a7 are used to store function’s arguments. Specifically, for the <code>printf</code>, register a2 holds the value 13.</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> main<span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span><span class="er">c</span><span class="op">:</span> <span class="dv">1141</span>                    add sp<span class="op">,</span>sp<span class="op">,-</span><span class="dv">16</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span><span class="er">e</span><span class="op">:</span> e406                    sd  ra<span class="op">,</span><span class="dv">8</span><span class="op">(</span>sp<span class="op">)</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="dv">20</span><span class="op">:</span> e022                    sd  s0<span class="op">,</span><span class="dv">0</span><span class="op">(</span>sp<span class="op">)</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="dv">22</span><span class="op">:</span> <span class="dv">0</span><span class="er">800</span>                    add s0<span class="op">,</span>sp<span class="op">,</span><span class="dv">16</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>printf<span class="op">(</span><span class="st">"</span><span class="sc">%d</span><span class="st"> </span><span class="sc">%d\n</span><span class="st">"</span><span class="op">,</span> f<span class="op">(</span><span class="dv">8</span><span class="op">)+</span><span class="dv">1</span><span class="op">,</span> <span class="dv">13</span><span class="op">);</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="dv">24</span><span class="op">:</span> <span class="dv">4635</span>                    li  a2<span class="op">,</span><span class="dv">13</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="dv">26</span><span class="op">:</span> <span class="dv">45</span><span class="er">b1</span>                    li  a1<span class="op">,</span><span class="dv">12</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="dv">28</span><span class="op">:</span> <span class="bn">00001517</span>            auipc   a0<span class="op">,</span><span class="bn">0x1</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span><span class="er">c</span><span class="op">:</span> <span class="dv">84850513</span>            add a0<span class="op">,</span>a0<span class="op">,-</span><span class="dv">1976</span> # <span class="dv">870</span> <span class="op">&lt;</span>malloc<span class="op">+</span><span class="bn">0x100</span><span class="op">&gt;</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="dv">30</span><span class="op">:</span> <span class="dv">68</span><span class="er">c000ef</span>            jal <span class="dv">6</span><span class="er">bc</span> <span class="op">&lt;</span>printf<span class="op">&gt;</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>exit<span class="op">(</span><span class="dv">0</span><span class="op">);</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="dv">34</span><span class="op">:</span> <span class="dv">4501</span>                    li  a0<span class="op">,</span><span class="dv">0</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="dv">36</span><span class="op">:</span> <span class="fl">26e000</span><span class="er">ef</span>            jal <span class="dv">2</span><span class="er">a4</span> <span class="op">&lt;</span>exit<span class="op">&gt;</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> f<span class="op">(</span><span class="dt">int</span> x<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>   e<span class="op">:</span>   <span class="dv">1141</span>                    add sp<span class="op">,</span>sp<span class="op">,-</span><span class="dv">16</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="dv">10</span><span class="op">:</span>   e422                    sd  s0<span class="op">,</span><span class="dv">8</span><span class="op">(</span>sp<span class="op">)</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="dv">12</span><span class="op">:</span>   <span class="dv">0</span><span class="er">800</span>                    add s0<span class="op">,</span>sp<span class="op">,</span><span class="dv">16</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> g<span class="op">(</span>x<span class="op">);</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<blockquote class="blockquote">
+<ol start="2" type="1">
+<li>Where is the call to function f in the assembly code for main? Where is the call to g? (Hint: the compiler may inline functions.)</li>
+</ol>
+</blockquote>
+<p>From the code above, we can see that the call to function <code>f</code> is <code>inlined</code> in main.</p>
+<blockquote class="blockquote">
+<ol start="3" type="1">
+<li>At what address is the function printf located?</li>
+</ol>
+</blockquote>
+<p>From the code above, we can see that the <code>printf</code> function is located at 0x6bc.</p>
+<blockquote class="blockquote">
+<ol start="4" type="1">
+<li>What value is in the register ra just after the jalr to printf in main?</li>
+</ol>
+</blockquote>
+<p><strong>Notes:</strong> <code>jal</code>(jump and link): jump to the address and save the address of the next instruction in the <code>ra</code> register.</p>
+<p>By this definition, then the register <code>ra</code> will store the address of the next instruction, which is <code>0x34</code> in this case.</p>
+<blockquote class="blockquote">
+<ol start="5" type="1">
+<li>Run the following code.</li>
+</ol>
+</blockquote>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">unsigned</span> <span class="dt">int</span> i <span class="op">=</span> <span class="bn">0x00646c72</span><span class="op">;</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>printf<span class="op">(</span><span class="st">"H</span><span class="sc">%x</span><span class="st"> Wo</span><span class="sc">%s</span><span class="st">"</span><span class="op">,</span> <span class="dv">57616</span><span class="op">,</span> <span class="op">(</span><span class="dt">char</span> <span class="op">*)</span> <span class="op">&amp;</span>i<span class="op">);</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<blockquote class="blockquote">
+<p>What is the output? Here’s an ASCII table that maps bytes to characters.</p>
+</blockquote>
+<blockquote class="blockquote">
+<p>The output depends on that fact that the RISC-V is little-endian. If the RISC-V were instead big-endian what would you set i to in order to yield the same output? Would you need to change 57616 to a different value?</p>
+</blockquote>
+<p>In little-endian system, the least significant byte is stored at the lowest address. That means the value <code>i = 0x00646c72</code> is stored as <code>72 6c 64 00</code> in memory. In which, - <code>0x72</code> is <code>r</code> - <code>0x6c</code> is <code>l</code> - <code>0x64</code> is <code>d</code> - <code>0x00</code> is <code>\0</code></p>
+<p>Also, in <code>printf</code>, <code>%x</code> is used to print the hexadecimal format.</p>
+<p>Therefore, the output is:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>He110 World</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>If RISC-V is big-endian, then the value of <code>i</code> should be <code>0x726c6400</code> and the value of <code>57616</code>.</p>
+<blockquote class="blockquote">
+<p>In the following code, what is going to be printed after ‘y=’? (note: the answer is not a specific value.) Why does this happen?</p>
+</blockquote>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>printf<span class="op">(</span><span class="st">"x=</span><span class="sc">%d</span><span class="st"> y=</span><span class="sc">%d</span><span class="st">"</span><span class="op">,</span> <span class="dv">3</span><span class="op">);</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Since the <code>printf</code> function requires two arguments for 2 format specifiers, but only one argument is provided, the output will be undefined or the program will be crashed.</p>
 
 
 </section>
