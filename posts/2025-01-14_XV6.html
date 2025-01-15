@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="dcterms.date" content="2025-01-14">
-<meta name="description" content="Answer for lab3 2024">
+<meta name="description" content="Answer for lab4 2024">
 
 <title>XV6 Series: MIT Lab4 2024 – Minh Dang</title>
 <style>
@@ -174,7 +174,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <div>
   <div class="description">
-    Answer for lab3 2024
+    Answer for lab4 2024
   </div>
 </div>
 
@@ -231,13 +231,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Where is the call to function f in the assembly code for main? Where is the call to g? (Hint: the compiler may inline functions.)</li>
 </ol>
 </blockquote>
-<p>From the code above, we can see that the call to function <code>f</code> is <code>inlined</code> in main.</p>
+<p>From the code above, we can see that the calls to function <code>f</code> and <code>g</code> are optimized in main. That means the output of the function calls are computed in compiled time. You can see that the register <code>a1</code> holds the result of the <code>f(8) + 1</code>.</p>
 <blockquote class="blockquote">
 <ol start="3" type="1">
 <li>At what address is the function printf located?</li>
 </ol>
 </blockquote>
-<p>From the code above, we can see that the <code>printf</code> function is located at 0x6bc.</p>
+<p>From the code above, we can see that the <code>printf</code> function is located at <code>0x6bc</code>.</p>
 <blockquote class="blockquote">
 <ol start="4" type="1">
 <li>What value is in the register ra just after the jalr to printf in main?</li>
@@ -258,15 +258,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <blockquote class="blockquote">
 <p>The output depends on that fact that the RISC-V is little-endian. If the RISC-V were instead big-endian what would you set i to in order to yield the same output? Would you need to change 57616 to a different value?</p>
 </blockquote>
-<p>In little-endian system, the least significant byte is stored at the lowest address. That means the value <code>i = 0x00646c72</code> is stored as <code>72 6c 64 00</code> in memory. In which, - <code>0x72</code> is <code>r</code> - <code>0x6c</code> is <code>l</code> - <code>0x64</code> is <code>d</code> - <code>0x00</code> is <code>\0</code></p>
+<p>In little-endian system, the least significant byte is stored at the lowest address. That means the value <code>i = 0x00646c72</code> is stored as <code>72 6c 64 00</code> in memory. In which,</p>
+<ul>
+<li><code>0x72</code> is <code>r</code></li>
+<li><code>0x6c</code> is <code>l</code></li>
+<li><code>0x64</code> is <code>d</code></li>
+<li><code>0x00</code> is <code>\0</code></li>
+</ul>
 <p>Also, in <code>printf</code>, <code>%x</code> is used to print the hexadecimal format.</p>
-<p>Therefore, the output is:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>He110 World</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Therefore, the output is: <code>He110 World</code></p>
 <p>If RISC-V is big-endian, then the value of <code>i</code> should be <code>0x726c6400</code> and the value of <code>57616</code>.</p>
 <blockquote class="blockquote">
 <p>In the following code, what is going to be printed after ‘y=’? (note: the answer is not a specific value.) Why does this happen?</p>
 </blockquote>
-<div class="sourceCode" id="cb4"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>printf<span class="op">(</span><span class="st">"x=</span><span class="sc">%d</span><span class="st"> y=</span><span class="sc">%d</span><span class="st">"</span><span class="op">,</span> <span class="dv">3</span><span class="op">);</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>printf<span class="op">(</span><span class="st">"x=</span><span class="sc">%d</span><span class="st"> y=</span><span class="sc">%d</span><span class="st">"</span><span class="op">,</span> <span class="dv">3</span><span class="op">);</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Since the <code>printf</code> function requires two arguments for 2 format specifiers, but only one argument is provided, the output will be undefined or the program will be crashed.</p>
 
 
