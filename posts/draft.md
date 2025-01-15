@@ -1,3 +1,16 @@
+---
+aliases:
+- /OS/WriteUps/XV6-Lab4-2024
+categories:
+- Write-ups
+date: '2025-01-14'
+description: Answer for lab4 2024
+image: images/xv6_mit.png
+layout: post
+title: "DRAFT"
+toc: true
+draft: true
+---
 ## Lab : traps
 
 @author : FlyingPig
