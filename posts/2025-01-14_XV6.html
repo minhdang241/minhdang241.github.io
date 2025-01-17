@@ -158,6 +158,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#risc-v-assembly" id="toc-risc-v-assembly" class="nav-link active" data-scroll-target="#risc-v-assembly">RISC-V assembly</a></li>
+  <li><a href="#backtrace" id="toc-backtrace" class="nav-link" data-scroll-target="#backtrace">Backtrace</a>
+  <ul class="collapse">
+  <li><a href="#general-knowledge" id="toc-general-knowledge" class="nav-link" data-scroll-target="#general-knowledge">General Knowledge</a></li>
+  <li><a href="#implementation" id="toc-implementation" class="nav-link" data-scroll-target="#implementation">Implementation</a></li>
+  </ul></li>
+  <li><a href="#general-knowledge-optional" id="toc-general-knowledge-optional" class="nav-link" data-scroll-target="#general-knowledge-optional">General Knowledge (Optional)</a></li>
   </ul>
 </nav>
     </div>
@@ -204,7 +210,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li>Which registers contain arguments to functions? For example, which register holds 13 in main’s call to printf?</li>
 </ol>
 </blockquote>
-<p>In RISC, a0-a7 are used to store function’s arguments. Specifically, for the <code>printf</code>, register a2 holds the value 13.</p>
+<p>In RISC, a0-a7 registers are used to store function’s arguments. Specifically, for the <code>printf</code>, register a2 holds the value 13.</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> main<span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span><span class="er">c</span><span class="op">:</span> <span class="dv">1141</span>                    add sp<span class="op">,</span>sp<span class="op">,-</span><span class="dv">16</span></span>
 <span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span><span class="er">e</span><span class="op">:</span> e406                    sd  ra<span class="op">,</span><span class="dv">8</span><span class="op">(</span>sp<span class="op">)</span></span>
@@ -273,6 +279,41 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </blockquote>
 <div class="sourceCode" id="cb3"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>printf<span class="op">(</span><span class="st">"x=</span><span class="sc">%d</span><span class="st"> y=</span><span class="sc">%d</span><span class="st">"</span><span class="op">,</span> <span class="dv">3</span><span class="op">);</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Since the <code>printf</code> function requires two arguments for 2 format specifiers, but only one argument is provided, the output will be undefined or the program will be crashed.</p>
+</section>
+<section id="backtrace" class="level2">
+<h2 class="anchored" data-anchor-id="backtrace">Backtrace</h2>
+<section id="general-knowledge" class="level3">
+<h3 class="anchored" data-anchor-id="general-knowledge">General Knowledge</h3>
+<p>Compiler generates machine code to maintain a stack frame on the stack corresponding to each function call in the current call chain. Each stack frame contains the return address, and the “frame pointer” to the caller’s stack frame.</p>
+<p>Register <code>s0</code> contains the pointer to the current stack frame. The address of the caller’s stack frame is stored at <code>s0 - 8</code>, and the address of the previous frame pointer is stored at <code>s0 - 16</code>.</p>
+</section>
+<section id="implementation" class="level3">
+<h3 class="anchored" data-anchor-id="implementation">Implementation</h3>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>backtrace<span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  uint64 fp <span class="op">=</span> r_fp<span class="op">();</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  printf<span class="op">(</span><span class="st">"backtrace:</span><span class="sc">\n</span><span class="st">"</span><span class="op">);</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> <span class="op">(</span>fp <span class="op">!=</span> PGROUNDDOWN<span class="op">(</span>fp<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">"</span><span class="sc">%p\n</span><span class="st">"</span><span class="op">,</span> <span class="op">(</span><span class="dt">void</span><span class="op">*)</span> <span class="op">(*(</span>uint64 <span class="op">*)(</span>fp <span class="op">-</span> <span class="dv">8</span><span class="op">)));</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    fp <span class="op">=</span> <span class="op">*(</span>uint64 <span class="op">*)(</span>fp <span class="op">-</span> <span class="dv">16</span><span class="op">);</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+</section>
+<section id="general-knowledge-optional" class="level2">
+<h2 class="anchored" data-anchor-id="general-knowledge-optional">General Knowledge (Optional)</h2>
+<p>There are three types of events that cause a user process to “trap” into the kernel:</p>
+<ul>
+<li>System call (requests by user for OS services)</li>
+<li>Interrupts (external device(s) want attention)</li>
+<li>Program fault (illegal action by program)</li>
+</ul>
+<p>In case of the system call, the <code>ecall</code> trigger the trap process by:</p>
+<ul>
+<li>Switch to supervisor mode (S mode)</li>
+<li>Store <code>PC</code> to <code>sepc</code></li>
+<li>Set <code>PC</code> to <code>stvec</code> The <code>stvec</code> holds the address of the trampoline code a.k.a the trap handler code.</li>
+</ul>
 
 
 </section>
