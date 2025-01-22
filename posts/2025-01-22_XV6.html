@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="dcterms.date" content="2025-01-14">
-<meta name="description" content="Write-ups for Lab: Traps">
+<meta name="description" content="Write-ups for Lab: Lock">
 
 <title>XV6 Series: MIT Labs 2024 – Minh Dang</title>
 <style>
@@ -157,13 +157,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#risc-v-assembly" id="toc-risc-v-assembly" class="nav-link active" data-scroll-target="#risc-v-assembly">RISC-V assembly</a></li>
-  <li><a href="#backtrace" id="toc-backtrace" class="nav-link" data-scroll-target="#backtrace">Backtrace</a>
-  <ul class="collapse">
-  <li><a href="#general-knowledge" id="toc-general-knowledge" class="nav-link" data-scroll-target="#general-knowledge">General Knowledge</a></li>
-  <li><a href="#implementation" id="toc-implementation" class="nav-link" data-scroll-target="#implementation">Implementation</a></li>
-  </ul></li>
-  <li><a href="#general-knowledge-optional" id="toc-general-knowledge-optional" class="nav-link" data-scroll-target="#general-knowledge-optional">General Knowledge (Optional)</a></li>
+  <li><a href="#memory-allocator" id="toc-memory-allocator" class="nav-link active" data-scroll-target="#memory-allocator">Memory allocator</a></li>
   </ul>
 </nav>
     </div>
@@ -180,7 +174,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <div>
   <div class="description">
-    Write-ups for Lab: Traps
+    Write-ups for Lab: Lock
   </div>
 </div>
 
@@ -203,117 +197,101 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="risc-v-assembly" class="level2">
-<h2 class="anchored" data-anchor-id="risc-v-assembly">RISC-V assembly</h2>
-<blockquote class="blockquote">
-<ol type="1">
-<li>Which registers contain arguments to functions? For example, which register holds 13 in main’s call to printf?</li>
-</ol>
-</blockquote>
-<p>In RISC, a0-a7 registers are used to store function’s arguments. Specifically, for the <code>printf</code>, register a2 holds the value 13.</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> main<span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span><span class="er">c</span><span class="op">:</span> <span class="dv">1141</span>                    add sp<span class="op">,</span>sp<span class="op">,-</span><span class="dv">16</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="dv">1</span><span class="er">e</span><span class="op">:</span> e406                    sd  ra<span class="op">,</span><span class="dv">8</span><span class="op">(</span>sp<span class="op">)</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="dv">20</span><span class="op">:</span> e022                    sd  s0<span class="op">,</span><span class="dv">0</span><span class="op">(</span>sp<span class="op">)</span></span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="dv">22</span><span class="op">:</span> <span class="dv">0</span><span class="er">800</span>                    add s0<span class="op">,</span>sp<span class="op">,</span><span class="dv">16</span></span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>printf<span class="op">(</span><span class="st">"</span><span class="sc">%d</span><span class="st"> </span><span class="sc">%d\n</span><span class="st">"</span><span class="op">,</span> f<span class="op">(</span><span class="dv">8</span><span class="op">)+</span><span class="dv">1</span><span class="op">,</span> <span class="dv">13</span><span class="op">);</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="dv">24</span><span class="op">:</span> <span class="dv">4635</span>                    li  a2<span class="op">,</span><span class="dv">13</span></span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="dv">26</span><span class="op">:</span> <span class="dv">45</span><span class="er">b1</span>                    li  a1<span class="op">,</span><span class="dv">12</span></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="dv">28</span><span class="op">:</span> <span class="bn">00001517</span>            auipc   a0<span class="op">,</span><span class="bn">0x1</span></span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a><span class="dv">2</span><span class="er">c</span><span class="op">:</span> <span class="dv">84850513</span>            add a0<span class="op">,</span>a0<span class="op">,-</span><span class="dv">1976</span> # <span class="dv">870</span> <span class="op">&lt;</span>malloc<span class="op">+</span><span class="bn">0x100</span><span class="op">&gt;</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="dv">30</span><span class="op">:</span> <span class="dv">68</span><span class="er">c000ef</span>            jal <span class="dv">6</span><span class="er">bc</span> <span class="op">&lt;</span>printf<span class="op">&gt;</span></span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>exit<span class="op">(</span><span class="dv">0</span><span class="op">);</span></span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a><span class="dv">34</span><span class="op">:</span> <span class="dv">4501</span>                    li  a0<span class="op">,</span><span class="dv">0</span></span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a><span class="dv">36</span><span class="op">:</span> <span class="fl">26e000</span><span class="er">ef</span>            jal <span class="dv">2</span><span class="er">a4</span> <span class="op">&lt;</span>exit<span class="op">&gt;</span></span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> f<span class="op">(</span><span class="dt">int</span> x<span class="op">)</span> <span class="op">{</span></span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>   e<span class="op">:</span>   <span class="dv">1141</span>                    add sp<span class="op">,</span>sp<span class="op">,-</span><span class="dv">16</span></span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>  <span class="dv">10</span><span class="op">:</span>   e422                    sd  s0<span class="op">,</span><span class="dv">8</span><span class="op">(</span>sp<span class="op">)</span></span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>  <span class="dv">12</span><span class="op">:</span>   <span class="dv">0</span><span class="er">800</span>                    add s0<span class="op">,</span>sp<span class="op">,</span><span class="dv">16</span></span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> g<span class="op">(</span>x<span class="op">);</span></span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<blockquote class="blockquote">
-<ol start="2" type="1">
-<li>Where is the call to function f in the assembly code for main? Where is the call to g? (Hint: the compiler may inline functions.)</li>
-</ol>
-</blockquote>
-<p>From the code above, we can see that the calls to function <code>f</code> and <code>g</code> are optimized in main. That means the output of the function calls are computed in compiled time. You can see that the register <code>a1</code> holds the result of the <code>f(8) + 1</code>.</p>
-<blockquote class="blockquote">
-<ol start="3" type="1">
-<li>At what address is the function printf located?</li>
-</ol>
-</blockquote>
-<p>From the code above, we can see that the <code>printf</code> function is located at <code>0x6bc</code>.</p>
-<blockquote class="blockquote">
-<ol start="4" type="1">
-<li>What value is in the register ra just after the jalr to printf in main?</li>
-</ol>
-</blockquote>
-<p><strong>Notes:</strong> <code>jal</code>(jump and link): jump to the address and save the address of the next instruction in the <code>ra</code> register.</p>
-<p>By this definition, then the register <code>ra</code> will store the address of the next instruction, which is <code>0x34</code> in this case.</p>
-<blockquote class="blockquote">
-<ol start="5" type="1">
-<li>Run the following code.</li>
-</ol>
-</blockquote>
-<div class="sourceCode" id="cb2"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">unsigned</span> <span class="dt">int</span> i <span class="op">=</span> <span class="bn">0x00646c72</span><span class="op">;</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>printf<span class="op">(</span><span class="st">"H</span><span class="sc">%x</span><span class="st"> Wo</span><span class="sc">%s</span><span class="st">"</span><span class="op">,</span> <span class="dv">57616</span><span class="op">,</span> <span class="op">(</span><span class="dt">char</span> <span class="op">*)</span> <span class="op">&amp;</span>i<span class="op">);</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<blockquote class="blockquote">
-<p>What is the output? Here’s an ASCII table that maps bytes to characters.</p>
-</blockquote>
-<blockquote class="blockquote">
-<p>The output depends on that fact that the RISC-V is little-endian. If the RISC-V were instead big-endian what would you set i to in order to yield the same output? Would you need to change 57616 to a different value?</p>
-</blockquote>
-<p>In little-endian system, the least significant byte is stored at the lowest address. That means the value <code>i = 0x00646c72</code> is stored as <code>72 6c 64 00</code> in memory. In which,</p>
+<section id="memory-allocator" class="level2">
+<h2 class="anchored" data-anchor-id="memory-allocator">Memory allocator</h2>
+<p>There are two requirements of this problem:</p>
 <ul>
-<li><code>0x72</code> is <code>r</code></li>
-<li><code>0x6c</code> is <code>l</code></li>
-<li><code>0x64</code> is <code>d</code></li>
-<li><code>0x00</code> is <code>\0</code></li>
+<li>Each CPU should have its own <code>freelist</code> and <code>lock</code>.</li>
+<li>In case, the current <code>freelist</code> is empty, the allocator should be able to steal the <code>freelist</code> of another CPU.</li>
 </ul>
-<p>Also, in <code>printf</code>, <code>%x</code> is used to print the hexadecimal format.</p>
-<p>Therefore, the output is: <code>He110 World</code></p>
-<p>If RISC-V is big-endian, then the value of <code>i</code> should be <code>0x726c6400</code> and the value of <code>57616</code>.</p>
-<blockquote class="blockquote">
-<p>In the following code, what is going to be printed after ‘y=’? (note: the answer is not a specific value.) Why does this happen?</p>
-</blockquote>
-<div class="sourceCode" id="cb3"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>printf<span class="op">(</span><span class="st">"x=</span><span class="sc">%d</span><span class="st"> y=</span><span class="sc">%d</span><span class="st">"</span><span class="op">,</span> <span class="dv">3</span><span class="op">);</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Since the <code>printf</code> function requires two arguments for 2 format specifiers, but only one argument is provided, the output will be undefined or the program will be crashed.</p>
-</section>
-<section id="backtrace" class="level2">
-<h2 class="anchored" data-anchor-id="backtrace">Backtrace</h2>
-<section id="general-knowledge" class="level3">
-<h3 class="anchored" data-anchor-id="general-knowledge">General Knowledge</h3>
-<p>Compiler generates machine code to maintain a stack frame on the stack corresponding to each function call in the current call chain. Each stack frame contains the return address, and the “frame pointer” to the caller’s stack frame.</p>
-<p>Register <code>s0</code> contains the pointer to the current stack frame. The address of the caller’s stack frame is stored at <code>s0 - 8</code>, and the address of the previous frame pointer is stored at <code>s0 - 16</code>.</p>
-</section>
-<section id="implementation" class="level3">
-<h3 class="anchored" data-anchor-id="implementation">Implementation</h3>
+<p>For the first requirement, we need to modify the kmem structure to the array of kmems as follows: From</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> <span class="op">{</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">struct</span> spinlock lock<span class="op">;</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">struct</span> run <span class="op">*</span>freelist<span class="op">;</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> kmem<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>To</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> <span class="op">{</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">struct</span> spinlock lock<span class="op">;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">struct</span> run <span class="op">*</span>freelist<span class="op">;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> kmem<span class="op">[</span>NCPU<span class="op">];</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Then we need to modify the <code>knit</code> and <code>kfree</code> function to adapt to the new data structure.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>kinit<span class="op">()</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">char</span> lock_name<span class="op">[</span><span class="dv">10</span><span class="op">];</span> <span class="co">// Each CPU should have a lock name</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> NCPU<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    snprintf<span class="op">(</span>lock_name<span class="op">,</span> <span class="dv">10</span><span class="op">,</span> <span class="st">"kmem_CPU</span><span class="sc">%d</span><span class="st">"</span><span class="op">,</span> i<span class="op">);</span> <span class="co">// Format the lock name</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    initlock<span class="op">(&amp;(</span>kmem<span class="op">[</span>i<span class="op">].</span>lock<span class="op">),</span> lock_name<span class="op">);</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  freerange<span class="op">(</span>end<span class="op">,</span> <span class="op">(</span><span class="dt">void</span><span class="op">*)</span>PHYSTOP<span class="op">);</span> <span class="co">// Allocate all the free space to the CPU that executes this line.</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="sourceCode" id="cb4"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>backtrace<span class="op">(</span><span class="dt">void</span><span class="op">)</span> <span class="op">{</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  uint64 fp <span class="op">=</span> r_fp<span class="op">();</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  printf<span class="op">(</span><span class="st">"backtrace:</span><span class="sc">\n</span><span class="st">"</span><span class="op">);</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">while</span> <span class="op">(</span>fp <span class="op">!=</span> PGROUNDDOWN<span class="op">(</span>fp<span class="op">))</span> <span class="op">{</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    printf<span class="op">(</span><span class="st">"</span><span class="sc">%p\n</span><span class="st">"</span><span class="op">,</span> <span class="op">(</span><span class="dt">void</span><span class="op">*)</span> <span class="op">(*(</span>uint64 <span class="op">*)(</span>fp <span class="op">-</span> <span class="dv">8</span><span class="op">)));</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    fp <span class="op">=</span> <span class="op">*(</span>uint64 <span class="op">*)(</span>fp <span class="op">-</span> <span class="dv">16</span><span class="op">);</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</section>
-</section>
-<section id="general-knowledge-optional" class="level2">
-<h2 class="anchored" data-anchor-id="general-knowledge-optional">General Knowledge (Optional)</h2>
-<p>There are three types of events that cause a user process to “trap” into the kernel:</p>
-<ul>
-<li>System call (requests by user for OS services)</li>
-<li>Interrupts (external device(s) want attention)</li>
-<li>Program fault (illegal action by program)</li>
-</ul>
-<p>In case of the system call, the <code>ecall</code> trigger the trap process by:</p>
-<ul>
-<li>Switch to supervisor mode (S mode)</li>
-<li>Store <code>PC</code> to <code>sepc</code></li>
-<li>Set <code>PC</code> to <code>stvec</code> The <code>stvec</code> holds the address of the trampoline code a.k.a the trap handler code.</li>
-</ul>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>kfree<span class="op">(</span><span class="dt">void</span> <span class="op">*</span>pa<span class="op">)</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">struct</span> run <span class="op">*</span>r<span class="op">;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span><span class="op">(((</span>uint64<span class="op">)</span>pa <span class="op">%</span> PGSIZE<span class="op">)</span> <span class="op">!=</span> <span class="dv">0</span> <span class="op">||</span> <span class="op">(</span><span class="dt">char</span><span class="op">*)</span>pa <span class="op">&lt;</span> end <span class="op">||</span> <span class="op">(</span>uint64<span class="op">)</span>pa <span class="op">&gt;=</span> PHYSTOP<span class="op">)</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    panic<span class="op">(</span><span class="st">"kfree"</span><span class="op">);</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Fill with junk to catch dangling refs.</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  memset<span class="op">(</span>pa<span class="op">,</span> <span class="dv">1</span><span class="op">,</span> PGSIZE<span class="op">);</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  r <span class="op">=</span> <span class="op">(</span><span class="kw">struct</span> run<span class="op">*)</span>pa<span class="op">;</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  push_off<span class="op">();</span> <span class="co">// Disable Interrupt</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> cpu <span class="op">=</span> cpuid<span class="op">();</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  pop_off<span class="op">();</span> <span class="co">// Enable Interrupt</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  acquire<span class="op">(&amp;(</span>kmem<span class="op">[</span>cpu<span class="op">].</span>lock<span class="op">));</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  r<span class="op">-&gt;</span>next <span class="op">=</span> kmem<span class="op">[</span>cpu<span class="op">].</span>freelist<span class="op">;</span></span>
+<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  kmem<span class="op">[</span>cpu<span class="op">].</span>freelist <span class="op">=</span> r<span class="op">;</span></span>
+<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  release<span class="op">(&amp;(</span>kmem<span class="op">[</span>cpu<span class="op">].</span>lock<span class="op">));</span></span>
+<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Finally, we modify the <code>kalloc</code> function as follows:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="op">*</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>kalloc<span class="op">(</span><span class="dt">void</span><span class="op">)</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">struct</span> run <span class="op">*</span>r<span class="op">;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  push_off<span class="op">();</span> <span class="co">// Disable Interrupt</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> cpu <span class="op">=</span> cpuid<span class="op">();</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  pop_off<span class="op">();</span> <span class="co">// Enable Interrupt</span></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  acquire<span class="op">(&amp;</span>kmem<span class="op">[</span>cpu<span class="op">].</span>lock<span class="op">);</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  r <span class="op">=</span> kmem<span class="op">[</span>cpu<span class="op">].</span>freelist<span class="op">;</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span><span class="op">(</span>r<span class="op">)</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    kmem<span class="op">[</span>cpu<span class="op">].</span>freelist <span class="op">=</span> r<span class="op">-&gt;</span>next<span class="op">;</span></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">// In case the current freelist is empty, we check the other lists of other CPUs </span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">// and take the free spaces if they exist.</span></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> run <span class="op">*</span>tmp<span class="op">;</span></span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Loop through the list of CPUs</span></span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> NCPU<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> <span class="op">(</span>i <span class="op">==</span> cpu<span class="op">)</span> <span class="cf">continue</span><span class="op">;</span> <span class="co">// Skip if the CPU is the current CPU</span></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>      acquire<span class="op">(&amp;</span>kmem<span class="op">[</span>i<span class="op">].</span>lock<span class="op">);</span></span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>      tmp <span class="op">=</span> kmem<span class="op">[</span>i<span class="op">].</span>freelist<span class="op">;</span></span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> <span class="op">(</span>tmp <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span> <span class="co">// Skip if the freelist is empty</span></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>        release<span class="op">(&amp;(</span>kmem<span class="op">[</span>i<span class="op">].</span>lock<span class="op">));</span></span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>      <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>        <span class="co">// steal 10 pages</span></span>
+<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> j <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> j <span class="op">&lt;</span> <span class="dv">10</span><span class="op">;</span> j<span class="op">++)</span> <span class="op">{</span></span>
+<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>          <span class="cf">if</span> <span class="op">(</span>tmp<span class="op">-&gt;</span>next<span class="op">)</span></span>
+<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>            tmp <span class="op">=</span> tmp<span class="op">-&gt;</span>next<span class="op">;</span></span>
+<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>          <span class="cf">else</span> <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>        kmem<span class="op">[</span>cpu<span class="op">].</span>freelist <span class="op">=</span> kmem<span class="op">[</span>i<span class="op">].</span>freelist<span class="op">;</span></span>
+<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>        kmem<span class="op">[</span>i<span class="op">].</span>freelist <span class="op">=</span> tmp<span class="op">-&gt;</span>next<span class="op">;</span></span>
+<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>        tmp<span class="op">-&gt;</span>next <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
+<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>        release<span class="op">(&amp;(</span>kmem<span class="op">[</span>i<span class="op">].</span>lock<span class="op">));</span></span>
+<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span><span class="op">;</span></span>
+<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>      <span class="op">}</span></span>
+<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> kmem<span class="op">[</span>cpu<span class="op">].</span>freelist<span class="op">;</span></span>
+<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>r<span class="op">)</span></span>
+<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>      kmem<span class="op">[</span>cpu<span class="op">].</span>freelist <span class="op">=</span> r<span class="op">-&gt;</span>next<span class="op">;</span></span>
+<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
+<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>  release<span class="op">(&amp;(</span>kmem<span class="op">[</span>cpu<span class="op">].</span>lock<span class="op">));</span></span>
+<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span><span class="op">(</span>r<span class="op">)</span></span>
+<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>    memset<span class="op">((</span><span class="dt">char</span><span class="op">*)</span>r<span class="op">,</span> <span class="dv">5</span><span class="op">,</span> PGSIZE<span class="op">);</span> <span class="co">// fill with junk</span></span>
+<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="op">(</span><span class="dt">void</span><span class="op">*)</span>r<span class="op">;</span></span>
+<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 
 
 </section>
