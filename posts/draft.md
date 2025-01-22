@@ -1,233 +1,221 @@
----
-aliases:
-- /OS/WriteUps/XV6-Lab4-2024
-categories:
-- Write-ups
-date: '2025-01-14'
-description: Answer for lab4 2024
-image: images/xv6_mit.png
-layout: post
-title: "DRAFT"
-toc: true
-draft: true
----
-## Lab : traps
+## Lab: Locking
 
 @author : FlyingPig
 
 @email : zhongyinmin@pku.edu.cn
 
-### 1. Overview
+#### 1. 概述
 
---- 
+---
 
-xv6 implements system calls through the trap mechanism. This lab will allow students to first familiarize themselves with the user stack and then implement a trap handler.
-
-
-
-### 2. Code Implementation
-
---- 
-
-#### 2.1 Backtrace
-
---- 
-
-When debugging, we hope to know which functions are called above the stack when an error occurs in the code.
-
-![image-20210110212219277](/Users/apple/Library/Application Support/typora-user-images/image-20210110212219277.png)
-
-The above is a screenshot from a class slide, which shows the structure of the RISC-V stack frame very well, from which backtrace can be easily implemented
-
-```c 
-void 
-backtrace(void) 
-{ 
-  uint64 cur_fp = r_fp(); 
-  while(cur_fp != PGROUNDDOWN(cur_fp)) 
-  { 
-    printf("%p\n", *(uint64 *)(cur_fp - 8)); 
-    cur_fp = *(uint64 *)(cur_fp - 16); 
-  } 
-} 
-``` 
-
-It should be noted that xv6 only allocates one page (4KB) as the user stack to each user process, so it is possible to determine whether the stack head has been reached by checking whether fp has reached the beginning of the page.
-
-#### 2.2 Alarm
-
-In this exercise, you will add a feature to xv6 that will periodically sound an alarm to a process as it uses CPU time. This feature can be useful for processes that want to limit how much CPU time they use, or for processes that want to take some periodic action. More generally, you will implement a primitive form of user-level interrupt/fault handler; for example, you could use something similar to handle page faults in your application.
-
-To achieve this goal, you need to add a sigalarm(interval, handler) system call, which will cause the process that calls this system call to automatically call the handler function every interval ticks of the CPU.
-
-First, you need to add corresponding variables to the process proc data structure:
-
-```c 
-/ ======== alarm solution ========= 
-  uint64 handler; 
-  int alarm_interval; 
-  int passed_ticks; 
-  int allow_entrance_handler; 
-  uint64 saved_epc; // saved user program counter 
-  uint64 saved_ra; uint64 
-  saved_sp; 
-  uint64 saved_gp; 
-  uint64 saved_tp 
-  ; uint64 saved_t0; 
-  uint64 saved_t1; uint64 saved_t2 
-  ; uint64 saved_t3 
-  ; uint64 saved_t4; uint64 saved_t5; uint64 saved_t6; 
-  uint64 saved_a0 
-  ; 
-  uint64 saved_a1; uint64 saved_a2; 
-  uint64 
-  saved_a3 
-  ; 
-  uint64 
-  saved_a4; 
-  uint64 saved_a5; uint64 saved_a6; uint64 
-  saved_a7 
-  ; 
-  uint64 saved_s0; 
-  uint64 saved_s1; 
-  uint64 
-  saved_s2; uint64 saved_s3; uint64 saved_s4 
-  ; 
-  uint64 saved_s5; uint64 
-  saved_s6; uint64 
-  saved_s7; 
-  uint64 saved_s8; 
-  uint64 saved_s9; 
-  uint64 saved_s10; 
-  uint64 saved_s11; 
-  // ================================= 
-``` 
-Then implement the sigalarm system call, which will assign the attributes of the corresponding process.
-```c 
-uint64 
-sys_sigalarm(void) 
-{ 
-  int interval; 
-  uint64 handler; 
-  if (argint(0, &interval) < 0) 
-    return -1; 
-  if (argaddr(1, &handler) < 0)
+在并发编程中我们经常用到锁来解决同步互斥问题，但是一个多核机器上对锁的使用不当会带来很多的所谓 “lock contention” 问题。这个lab的目标就是对涉及到锁的数据结构进行修改已降低对锁的竞争。
 
 
-    return -1; 
-  myproc()->alarm_interval = interval; 
-  myproc()->handler = handler; 
-  return 0 ; 
-} 
-``` 
 
-If you want to automatically load xv6 with an exception, trap the default settings:
+#### 2. Memory allocator
 
-```c 
-// give up the CPU if this is a timer interrupt. 
-  if(which_dev == 2) 
-  { 
-    // ======= alarm solution ======== 
-    p->passed_ticks += 1; 
-    if (p->passed_ticks == p->alarm_interval) 
-    { 
-      if (p->allow_entrance_handler) 
-      { 
-        // avoid re-entrant 
-        p->allow_entrance_handler = 0; 
+---
 
-        // save all the needed registers 
-        p->saved_epc = p->trapframe->epc; // saved user program counter 
-        p->saved_ra = p->trapframe->ra; 
-        p->saved_sp = p->trapframe->sp; 
-        p->saved_gp = p->trapframe->gp; 
-        p->saved_tp = p->trapframe->tp; 
-        p->saved_t0 = p->trapframe->t0; 
-        p->saved_t1 = p->trapframe->t1; 
-        p->saved_t2 = p->trapframe->t2; 
-        p->saved_t3 = p->trapframe->t3; 
-        p->saved_t4 = p->trapframe->t4; 
-        p->saved_t5 = p->trapframe->t5; 
-        p->saved_t6 = p->trapframe->t6; 
-        p->saved_a0 = p->trapframe->a0; 
-        p->saved_a1 = p->trapframe->a1; 
-        p->saved_a2 = p->trapframe->a2; 
-        p->saved_a3 = p->trapframe->a3; 
-        p->saved_a4 = p->trapframe->a4; 
-        p->saved_a5 = p->trapframe->a5; 
-        p->saved_a6 = p->trapframe->a6; 
-        p->saved_a7 = p->trapframe->a7; 
-        p->saved_s0 = p->trapframe->s0; 
-        p->saved_s1 = p->trapframe->s1; 
-        p->saved_s2 = p->trapframe->s2; 
-        p->saved_s3 = p->trapframe->s3; 
-        p->saved_s4 = p->trapframe->s4; 
-        p->saved_s5 = p->trapframe->s5; 
-        p->saved_s6 = p->trapframe->s6; 
-        p->saved_s7 = p->trapframe->s7; 
-        p->saved_s8 = p->trapframe->s8; 
-        p->saved_s9 = p->trapframe->s9; 
-        p->saved_s10 = p->trapframe->s10; 
-        p->saved_s11 = p->trapframe->s11; 
-        // if the process returns the user code,
-        // jump to the handler code first
-        p->trapframe->epc = p->handler;
+第一部分涉及到内存分配的代码，xv6将空闲的物理内存kmem组织成一个空闲链表kmem.freelist，同时用一个锁kmem.lock保护freelist，所有对kmem.freelist的访问都需要先取得锁，所以会产生很多竞争。解决方案也很直观，给每个CPU单独开一个freelist和对应的lock，这样只有同一个CPU上的进程同时获取对应锁才会产生竞争。
 
-        // re-arm the alarm
-        p->passed_ticks = 0;
+```c
+struct {
+  struct spinlock lock;
+  struct run *freelist;
+} kmem[NCPU];
+```
+
+同时得修改对应的kinit和kfree的代码以适应数据结构的修改
+
+```c
+void
+kinit()
+{
+  char buf[10];
+  for (int i = 0; i < NCPU; i++)
+  {
+    snprintf(buf, 10, "kmem_CPU%d", i);
+    initlock(&kmem[i].lock, buf);
+  }
+  freerange(end, (void*)PHYSTOP);
+}
+void
+kfree(void *pa)
+{
+  struct run *r;
+
+  if(((uint64)pa % PGSIZE) != 0 || (char*)pa < end || (uint64)pa >= PHYSTOP)
+    panic("kfree");
+
+  // Fill with junk to catch dangling refs.
+  memset(pa, 1, PGSIZE);
+
+  r = (struct run*)pa;
+
+  push_off();
+  int cpu = cpuid();
+  pop_off();
+  acquire(&kmem[cpu].lock);
+  r->next = kmem[cpu].freelist;
+  kmem[cpu].freelist = r;
+  release(&kmem[cpu].lock);
+}
+```
+
+另外，一个相对麻烦的问题是当一个CPU的freelist为空时，需要向其他 CPU的freelist“借”空闲块。
+
+```c
+void *
+kalloc(void)
+{
+  struct run *r;
+
+  push_off();
+  int cpu = cpuid();
+  pop_off();
+
+  acquire(&kmem[cpu].lock);
+  r = kmem[cpu].freelist;
+  if(r)
+    kmem[cpu].freelist = r->next;
+  else // steal page from other CPU
+  {
+    struct run* tmp;
+    for (int i = 0; i < NCPU; ++i)
+    {
+      if (i == cpu) continue;
+      acquire(&kmem[i].lock);
+      tmp = kmem[i].freelist;
+      if (tmp == 0) {
+        release(&kmem[i].lock);
+        continue;
       } else {
-        // can not enter handler code
-        p->passed_ticks -= 1;
+        for (int j = 0; j < 1024; j++) {
+          // steal 1024 pages
+          if (tmp->next)
+            tmp = tmp->next;
+          else 
+            break;
+        }
+        kmem[cpu].freelist = kmem[i].freelist;
+        kmem[i].freelist = tmp->next;
+        tmp->next = 0;
+        release(&kmem[i].lock);
+        break;
       }
     }
-    // ==================================================
-    yield();
-  } 
-``` 
+    r = kmem[cpu].freelist;
+    if (r) 
+      kmem[cpu].freelist = r->next;
+  }
+  release(&kmem[cpu].lock);
 
-Finally, since the handler function will call the sigreturn system call by default at the end, we only need to restore the original register values ​​in this system call.
+  if(r)
+    memset((char*)r, 5, PGSIZE); // fill with junk
+  return (void*)r;
+}
+```
 
-```c 
 
-uint64 
-sys_sigreturn(void) 
-{ 
-  // restore all the saved registers 
-  struct proc *p = myproc(); 
-  p->trapframe->epc = p->saved_epc; 
-  p->trapframe->ra = p->saved_ra; 
-  p->trapframe->sp = p->saved_sp; 
-  p->trapframe->gp = p->saved_gp; 
-  p->trapframe->tp = p->saved_tp; 
-  p->trapframe->a0 = p->saved_a0; 
-  p->trapframe->a1 = p->saved_a1; 
-  p->trapframe->a2 = p->saved_a2; 
-  p->trapframe->a3 = p->saved_a3; 
-  p->trapframe->a4 = p->saved_a4; 
-  p->trapframe->a5 = p->saved_a5; 
-  p->trapframe->a6 = p->saved_a6; 
-  p->trapframe->a7 = p->saved_a7; 
-  p->trapframe->t0 = p->saved_t0; 
-  p->trapframe->t1 = p->saved_t1; 
-  p->trapframe->t2 = p->saved_t2; 
-  p->trapframe->t3 = p->saved_t3; 
-  p->trapframe->t4 = p->saved_t4; 
-  p->trapframe->t5 = p->saved_t5; 
-  p->trapframe->t6 = p-> 
-  saved_t6; p->trapframe->s0 = p->saved_s0; 
-  p->trapframe->s1 = p->saved_s1; 
-  p->trapframe->s2 = p->saved_s2; 
-  p->trapframe->s3 = p->saved_s3; 
-  p->trapframe->s4 = p->saved_s4; 
-  p->trapframe->s5 = p->saved_s5; 
-  p->trapframe->s6 = p->saved_s6; 
-  p->trapframe->s7 = p->saved_s7; 
-  p->trapframe- 
-  >s8 = p->saved_s8; 
-  p->trapframe->s9 = p->saved_s9; p->trapframe->s10 = p->saved_s10; 
-  p->trapframe->s11 = p->saved_s11; 
 
-  myproc()->allow_entrance_handler = 1; 
-  return 0; 
-} 
+#### 3. Buffer cache
+
+---
+
+Buffer cache 是xv6的文件系统中的数据结构，用来缓存部分磁盘的数据块，以减少耗时的磁盘读写操作。但这也意味着buffer cache的数据结构是所有进程共享的（不同CPU上的也是如此），如果只用一个锁 bcache.lock保证对其修改的原子性的话，势必会造成很多的竞争。
+
+我的解决策略是根据数据块的blocknumber将其保存进一个哈希表，而哈希表的每个bucket都有一个相应的锁来保护，这样竞争只会发生在两个进程同时访问同一个bucket内的block。
+
+bcache的数据结构如下：
+
+```c
+struct {
+  struct spinlock lock;
+  struct buf head[NBUCKET];
+  struct buf hash[NBUCKET][NBUF];
+  struct spinlock hashlock[NBUCKET]; // lock per bucket
+} bcache;
+```
+
+相应地，需要修改binit, bget和breles函数：
+
+```c
+void
+binit(void)
+{
+  struct buf *b;
+
+  initlock(&bcache.lock, "bcache");
+  for (int i = 0; i < NBUCKET; i++) {
+    initlock(&bcache.hashlock[i], "bcache");
+
+    // Create linked list of buffers
+    bcache.head[i].prev = &bcache.head[i];
+    bcache.head[i].next = &bcache.head[i];
+    for(b = bcache.hash[i]; b < bcache.hash[i]+NBUF; b++){
+      b->next = bcache.head[i].next;
+      b->prev = &bcache.head[i];
+      initsleeplock(&b->lock, "buffer");
+      bcache.head[i].next->prev = b;
+      bcache.head[i].next = b;
+    }
+  }
+}
+static struct buf*
+bget(uint dev, uint blockno)
+{
+  struct buf *b;
+
+  uint hashcode = blockno % NBUCKET;
+  acquire(&bcache.hashlock[hashcode]);
+
+  // Is the block already cached?
+  for(b = bcache.head[hashcode].next; b != &bcache.head[hashcode]; b = b->next){
+    if(b->dev == dev && b->blockno == blockno){
+      b->refcnt++;
+      release(&bcache.hashlock[hashcode]);
+      acquiresleep(&b->lock);
+      return b;
+    }
+  }
+
+  // Not cached.
+  // Recycle the least recently used (LRU) unused buffer.
+  for(b = bcache.head[hashcode].prev; b != &bcache.head[hashcode]; b = b->prev){
+    if(b->refcnt == 0) {
+      b->dev = dev;
+      b->blockno = blockno;
+      b->valid = 0;
+      b->refcnt = 1;
+      release(&bcache.hashlock[hashcode]);
+      acquiresleep(&b->lock);
+      return b;
+    }
+  }
+  panic("bget: no buffers");
+}
+
+void
+brelse(struct buf *b)
+{
+  if(!holdingsleep(&b->lock))
+    panic("brelse");
+
+  releasesleep(&b->lock);
+
+  uint hashcode = b->blockno % NBUCKET;
+  acquire(&bcache.hashlock[hashcode]);
+  b->refcnt--;
+  if (b->refcnt == 0) {
+    // no one is waiting for it.
+    b->next->prev = b->prev;
+    b->prev->next = b->next;
+    b->next = bcache.head[hashcode].next;
+    b->prev = &bcache.head[hashcode];
+    bcache.head[hashcode].next->prev = b;
+    bcache.head[hashcode].next = b;
+  }
+  
+  release(&bcache.hashlock[hashcode]);
+}
 ```
