@@ -2,21 +2,21 @@
 title: "List 100"
 ---
 Things I want to do before I die. Please let me know if you have any recommendation.<br>
-Progress as of Oct 28, 2024: 1/100.<br>
+Progress as of Jan 23, 2025: 0/100.<br>
 
 1. <span style="color:red;">✗</span> Participate in UTMB.
-2. <span style="color:red;">✗</span> Live and work in another country (WIP).
-3. <span style="color:red;">✗</span> Marathon sub 3:00.
+2. <span style="color:red;">✗</span> Live and work in another country (WIP: Australia (2024-Present)).
+3. <span style="color:red;">✗</span> Marathon sub 3:00. (WIP: currently sub2 HM (1:48 HCMC 2025))
 4. <span style="color:red;">✗</span> Build a home.
 5. <span style="color:red;">✗</span> Work for Google.
 6. <span style="color:red;">✗</span> Become a parent.
-7. <span style="color:green;">✓</span> Fall in love.
-8. <span style="color:red;">✗</span> Body transformation (WIP).
+7. <span style="color:red;">✗</span> Fall in love.
+8. <span style="color:red;">✗</span> Body transformation (WIP: < 20% already (2025)).
 9. <span style="color:red;">✗</span> Participate in Iron Man World Championship.
 10. <span style="color:red;">✗</span> Meet David Goggins.
 11. <span style="color:red;">✗</span> Publish a book.
 12. <span style="color:red;">✗</span> Learn to play guitar again.
-13. <span style="color:red;">✗</span> Get the Guardian badge (Leetcode) (WIP, currently got a Knight Badge).
+13. <span style="color:red;">✗</span> Get the Guardian badge (Leetcode) (WIP: Knight Badge (2025)).
 14. <span style="color:red;">✗</span> Travel with my big family to Europe.
 15. <span style="color:red;">✗</span> Learning a 3rd language.
 
