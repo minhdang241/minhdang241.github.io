@@ -5,7 +5,7 @@ website:
   title: "Minh Dang"
   navbar:
     background: "#39729E"
-    foreground: "#dee2e6"
+    foreground: "#fff"
     pinned: true
     right:
       - text: "List 100"
@@ -21,8 +21,10 @@ website:
       repo: minhdang241/minhdang241.github.io
 format:
   html:
-    theme: cosmo
+    theme: default
     css: styles.css
-    # grid:
-      # body-width: 1300px
-      
+    mainfont: sans-serif
+    highlight-style: monokai
+    fontsize: 1.125rem;
+    grid:
+      body-width: 1000px
