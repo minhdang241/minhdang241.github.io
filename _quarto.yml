@@ -23,8 +23,8 @@ format:
   html:
     theme: default
     css: styles.css
-    mainfont: sans-serif
+    mainfont: Geist, sans-serif
     highlight-style: monokai
-    fontsize: 1.125rem;
+    fontsize: 1rem;
     grid:
-      body-width: 1000px
+      body-width: 800px
