@@ -6,10 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="dcterms.date" content="2025-01-14">
-<meta name="description" content="Write-ups for Lab: Lock">
 
-<title>XV6 Series: MIT Labs 2024 – Minh Dang</title>
+<title>compiler_design – Minh Dang</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -21,40 +19,6 @@ ul.task-list li input[type="checkbox"] {
   width: 0.8em;
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
-}
-/* CSS for syntax highlighting */
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 </style>
 
@@ -106,7 +70,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link rel="stylesheet" href="../styles.css">
 </head>
 
-<body class="nav-fixed">
+<body class="nav-fixed fullcontent">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -152,146 +116,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active">
-    <h2 id="toc-title">On this page</h2>
-   
-  <ul>
-  <li><a href="#memory-allocator" id="toc-memory-allocator" class="nav-link active" data-scroll-target="#memory-allocator">Memory allocator</a></li>
-  </ul>
-</nav>
-    </div>
+    
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">XV6 Series: MIT Labs 2024</h1>
-  <div class="quarto-categories">
-    <div class="quarto-category">Write-ups</div>
-  </div>
-  </div>
-
-<div>
-  <div class="description">
-    Write-ups for Lab: Lock
-  </div>
-</div>
 
 
-<div class="quarto-title-meta">
 
-    
-    <div>
-    <div class="quarto-title-meta-heading">Published</div>
-    <div class="quarto-title-meta-contents">
-      <p class="date">January 14, 2025</p>
-    </div>
-  </div>
-  
-    
-  </div>
-  
-
-
-</header>
-
-
-<section id="memory-allocator" class="level2">
-<h2 class="anchored" data-anchor-id="memory-allocator">Memory allocator</h2>
-<p>There are two requirements of this problem:</p>
-<ul>
-<li>Each CPU should have its own <code>freelist</code> and <code>lock</code>.</li>
-<li>In case, the current <code>freelist</code> is empty, the allocator should be able to steal the <code>freelist</code> of another CPU.</li>
-</ul>
-<p>For the first requirement, we need to modify the kmem structure to the array of kmems as follows: From</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> <span class="op">{</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">struct</span> spinlock lock<span class="op">;</span></span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">struct</span> run <span class="op">*</span>freelist<span class="op">;</span></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> kmem<span class="op">;</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>To</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">struct</span> <span class="op">{</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="kw">struct</span> spinlock lock<span class="op">;</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>  <span class="kw">struct</span> run <span class="op">*</span>freelist<span class="op">;</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="op">}</span> kmem<span class="op">[</span>NCPU<span class="op">];</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Then we need to modify the <code>knit</code> and <code>kfree</code> function to adapt to the new data structure.</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>kinit<span class="op">()</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="dt">char</span> lock_name<span class="op">[</span><span class="dv">10</span><span class="op">];</span> <span class="co">// Each CPU should have a lock name</span></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> NCPU<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    snprintf<span class="op">(</span>lock_name<span class="op">,</span> <span class="dv">10</span><span class="op">,</span> <span class="st">"kmem_CPU</span><span class="sc">%d</span><span class="st">"</span><span class="op">,</span> i<span class="op">);</span> <span class="co">// Format the lock name</span></span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    initlock<span class="op">(&amp;(</span>kmem<span class="op">[</span>i<span class="op">].</span>lock<span class="op">),</span> lock_name<span class="op">);</span></span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>  freerange<span class="op">(</span>end<span class="op">,</span> <span class="op">(</span><span class="dt">void</span><span class="op">*)</span>PHYSTOP<span class="op">);</span> <span class="co">// Allocate all the free space to the CPU that executes this line.</span></span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="sourceCode" id="cb4"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>kfree<span class="op">(</span><span class="dt">void</span> <span class="op">*</span>pa<span class="op">)</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">struct</span> run <span class="op">*</span>r<span class="op">;</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span><span class="op">(((</span>uint64<span class="op">)</span>pa <span class="op">%</span> PGSIZE<span class="op">)</span> <span class="op">!=</span> <span class="dv">0</span> <span class="op">||</span> <span class="op">(</span><span class="dt">char</span><span class="op">*)</span>pa <span class="op">&lt;</span> end <span class="op">||</span> <span class="op">(</span>uint64<span class="op">)</span>pa <span class="op">&gt;=</span> PHYSTOP<span class="op">)</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    panic<span class="op">(</span><span class="st">"kfree"</span><span class="op">);</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>  <span class="co">// Fill with junk to catch dangling refs.</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>  memset<span class="op">(</span>pa<span class="op">,</span> <span class="dv">1</span><span class="op">,</span> PGSIZE<span class="op">);</span></span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>  r <span class="op">=</span> <span class="op">(</span><span class="kw">struct</span> run<span class="op">*)</span>pa<span class="op">;</span></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>  push_off<span class="op">();</span> <span class="co">// Disable Interrupt</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> cpu <span class="op">=</span> cpuid<span class="op">();</span></span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>  pop_off<span class="op">();</span> <span class="co">// Enable Interrupt</span></span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>  acquire<span class="op">(&amp;(</span>kmem<span class="op">[</span>cpu<span class="op">].</span>lock<span class="op">));</span></span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>  r<span class="op">-&gt;</span>next <span class="op">=</span> kmem<span class="op">[</span>cpu<span class="op">].</span>freelist<span class="op">;</span></span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a>  kmem<span class="op">[</span>cpu<span class="op">].</span>freelist <span class="op">=</span> r<span class="op">;</span></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>  release<span class="op">(&amp;(</span>kmem<span class="op">[</span>cpu<span class="op">].</span>lock<span class="op">));</span></span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Finally, we modify the <code>kalloc</code> function as follows:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> <span class="op">*</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>kalloc<span class="op">(</span><span class="dt">void</span><span class="op">)</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="kw">struct</span> run <span class="op">*</span>r<span class="op">;</span></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  push_off<span class="op">();</span> <span class="co">// Disable Interrupt</span></span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  <span class="dt">int</span> cpu <span class="op">=</span> cpuid<span class="op">();</span></span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>  pop_off<span class="op">();</span> <span class="co">// Enable Interrupt</span></span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>  acquire<span class="op">(&amp;</span>kmem<span class="op">[</span>cpu<span class="op">].</span>lock<span class="op">);</span></span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>  r <span class="op">=</span> kmem<span class="op">[</span>cpu<span class="op">].</span>freelist<span class="op">;</span></span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span><span class="op">(</span>r<span class="op">)</span></span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>    kmem<span class="op">[</span>cpu<span class="op">].</span>freelist <span class="op">=</span> r<span class="op">-&gt;</span>next<span class="op">;</span></span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>  <span class="cf">else</span> <span class="op">{</span></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>    <span class="co">// In case the current freelist is empty, we check the other lists of other CPUs </span></span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="co">// and take the free spaces if they exist.</span></span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>    <span class="kw">struct</span> run <span class="op">*</span>tmp<span class="op">;</span></span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>    <span class="co">// Loop through the list of CPUs</span></span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> i <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> i <span class="op">&lt;</span> NCPU<span class="op">;</span> i<span class="op">++)</span> <span class="op">{</span></span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> <span class="op">(</span>i <span class="op">==</span> cpu<span class="op">)</span> <span class="cf">continue</span><span class="op">;</span> <span class="co">// Skip if the CPU is the current CPU</span></span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>      acquire<span class="op">(&amp;</span>kmem<span class="op">[</span>i<span class="op">].</span>lock<span class="op">);</span></span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>      tmp <span class="op">=</span> kmem<span class="op">[</span>i<span class="op">].</span>freelist<span class="op">;</span></span>
-<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a>      <span class="cf">if</span> <span class="op">(</span>tmp <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span> <span class="co">// Skip if the freelist is empty</span></span>
-<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a>        release<span class="op">(&amp;(</span>kmem<span class="op">[</span>i<span class="op">].</span>lock<span class="op">));</span></span>
-<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a>      <span class="op">}</span> <span class="cf">else</span> <span class="op">{</span></span>
-<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a>        <span class="co">// steal 10 pages</span></span>
-<span id="cb5-25"><a href="#cb5-25" aria-hidden="true" tabindex="-1"></a>        <span class="cf">for</span> <span class="op">(</span><span class="dt">int</span> j <span class="op">=</span> <span class="dv">0</span><span class="op">;</span> j <span class="op">&lt;</span> <span class="dv">10</span><span class="op">;</span> j<span class="op">++)</span> <span class="op">{</span></span>
-<span id="cb5-26"><a href="#cb5-26" aria-hidden="true" tabindex="-1"></a>          <span class="cf">if</span> <span class="op">(</span>tmp<span class="op">-&gt;</span>next<span class="op">)</span></span>
-<span id="cb5-27"><a href="#cb5-27" aria-hidden="true" tabindex="-1"></a>            tmp <span class="op">=</span> tmp<span class="op">-&gt;</span>next<span class="op">;</span></span>
-<span id="cb5-28"><a href="#cb5-28" aria-hidden="true" tabindex="-1"></a>          <span class="cf">else</span> <span class="cf">break</span><span class="op">;</span></span>
-<span id="cb5-29"><a href="#cb5-29" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
-<span id="cb5-30"><a href="#cb5-30" aria-hidden="true" tabindex="-1"></a>        kmem<span class="op">[</span>cpu<span class="op">].</span>freelist <span class="op">=</span> kmem<span class="op">[</span>i<span class="op">].</span>freelist<span class="op">;</span></span>
-<span id="cb5-31"><a href="#cb5-31" aria-hidden="true" tabindex="-1"></a>        kmem<span class="op">[</span>i<span class="op">].</span>freelist <span class="op">=</span> tmp<span class="op">-&gt;</span>next<span class="op">;</span></span>
-<span id="cb5-32"><a href="#cb5-32" aria-hidden="true" tabindex="-1"></a>        tmp<span class="op">-&gt;</span>next <span class="op">=</span> <span class="dv">0</span><span class="op">;</span></span>
-<span id="cb5-33"><a href="#cb5-33" aria-hidden="true" tabindex="-1"></a>        release<span class="op">(&amp;(</span>kmem<span class="op">[</span>i<span class="op">].</span>lock<span class="op">));</span></span>
-<span id="cb5-34"><a href="#cb5-34" aria-hidden="true" tabindex="-1"></a>        <span class="cf">break</span><span class="op">;</span></span>
-<span id="cb5-35"><a href="#cb5-35" aria-hidden="true" tabindex="-1"></a>      <span class="op">}</span></span>
-<span id="cb5-36"><a href="#cb5-36" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
-<span id="cb5-37"><a href="#cb5-37" aria-hidden="true" tabindex="-1"></a>    r <span class="op">=</span> kmem<span class="op">[</span>cpu<span class="op">].</span>freelist<span class="op">;</span></span>
-<span id="cb5-38"><a href="#cb5-38" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>r<span class="op">)</span></span>
-<span id="cb5-39"><a href="#cb5-39" aria-hidden="true" tabindex="-1"></a>      kmem<span class="op">[</span>cpu<span class="op">].</span>freelist <span class="op">=</span> r<span class="op">-&gt;</span>next<span class="op">;</span></span>
-<span id="cb5-40"><a href="#cb5-40" aria-hidden="true" tabindex="-1"></a>  <span class="op">}</span></span>
-<span id="cb5-41"><a href="#cb5-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-42"><a href="#cb5-42" aria-hidden="true" tabindex="-1"></a>  release<span class="op">(&amp;(</span>kmem<span class="op">[</span>cpu<span class="op">].</span>lock<span class="op">));</span></span>
-<span id="cb5-43"><a href="#cb5-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-44"><a href="#cb5-44" aria-hidden="true" tabindex="-1"></a>  <span class="cf">if</span><span class="op">(</span>r<span class="op">)</span></span>
-<span id="cb5-45"><a href="#cb5-45" aria-hidden="true" tabindex="-1"></a>    memset<span class="op">((</span><span class="dt">char</span><span class="op">*)</span>r<span class="op">,</span> <span class="dv">5</span><span class="op">,</span> PGSIZE<span class="op">);</span> <span class="co">// fill with junk</span></span>
-<span id="cb5-46"><a href="#cb5-46" aria-hidden="true" tabindex="-1"></a>  <span class="cf">return</span> <span class="op">(</span><span class="dt">void</span><span class="op">*)</span>r<span class="op">;</span></span>
-<span id="cb5-47"><a href="#cb5-47" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="scanner" class="level1">
+<h1>Scanner</h1>
+<p>Roles: &gt; Source code -&gt; <strong>Scanner</strong> -&gt; Tokens Only understand the syntax rules not the meaning.</p>
+<p>Typical tokens: - Identifier - Keyword - Operators - Separators - literals</p>
+<p><strong>Glossary</strong> - Lexeme of a token == The character sequence forming the token. - Pattern: a rules describing the set of <strong>lexemes</strong> that can represent a particular token</p>
+</section>
+<section id="parser" class="level1">
+<h1>Parser</h1>
+<blockquote class="blockquote">
+<p>Linear-time algorithm suffices to parse essentially all languages in practice.</p>
+</blockquote>
+<p>There are two types of parsers: - Top-down parsers =&gt; easy to implement. - Bottom-up parsers =&gt; supports more powerful grammars</p>
 
 
 </section>
